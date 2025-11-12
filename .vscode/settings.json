@@ -67,5 +67,6 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "ArcadeLab.slnx"
+    "dotnet.defaultSolution": "ArcadeLab.slnx",
+    "dotnet.dotnetPath": "/usr/local/bin/dotnet"
 }
