@@ -5,21 +5,23 @@ using UnityEditor;
 using UnityEngine;
 using VContainer;
 
-public class PlayerManager : MonoBehaviour
+public class LobbyPlayerManager : MonoBehaviour
 {
     [Inject] NetworkManager m_NetworkManager;
     [SerializeField] GameObject m_PlayerPrefab;
     Dictionary<string, PlayerController> m_Players = new();
     string m_UserId = "";
 
-    void Start()
+    async void Start()
     {
         Debug.Log("[PlayerManager] Start called");
+
         
         // 이벤트 구독
         m_NetworkManager.OnSignInSuccess += OnSignInSuccess;
         m_NetworkManager.OnOtherPlayersReceived += OnOtherPlayersReceived;
         m_NetworkManager.OnPlayerMoved += OnPlayerMoved;
+        await m_NetworkManager.ConnectToMainLobby();
         
         Debug.Log("[PlayerManager] Events subscribed");
         
@@ -30,12 +32,6 @@ public class PlayerManager : MonoBehaviour
             OnSignInSuccess(m_NetworkManager.UserId);
         }
         
-        // 이미 받은 플레이어 데이터가 있는지 확인
-        if (m_NetworkManager.CachedOtherPlayers != null && m_NetworkManager.CachedOtherPlayers.Length > 0)
-        {
-            Debug.Log($"[PlayerManager] Found {m_NetworkManager.CachedOtherPlayers.Length} cached players");
-            OnOtherPlayersReceived(m_NetworkManager.CachedOtherPlayers);
-        }
     }
 
     void OnSignInSuccess(string userId)

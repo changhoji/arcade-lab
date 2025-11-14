@@ -6,5 +6,6 @@ public class MainMenuLifetimeScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterComponentInHierarchy<MainMenuUI>();
+        builder.RegisterComponentInHierarchy<AuthManager>();
     }
 }

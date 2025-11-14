@@ -50,7 +50,7 @@ public class PlayerController : MonoBehaviour
         if (!IsOwner) return;
         m_MoveInput = new(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-        if (m_MoveInput != Vector2.zero && Time.time - m_LastSendTime > 0.1f)
+        if (m_MoveInput != Vector2.zero && Time.time - m_LastSendTime > 0.02f)
         {
             m_LastSendTime = Time.time;
             SendPosition();

@@ -10,6 +10,5 @@ public class MainMenuUI : MonoBehaviour
     public async void OnClickGuest()
     {
         await NetworkManager.SignInAnonymously();
-        SceneManager.LoadScene("MainLobby");
     }
 }
