@@ -19,6 +19,6 @@ public class AuthManager : MonoBehaviour
     void OnSignInSuccess(string userId)
     {
         Debug.Log("AuthManager.OnSignInSuccess");
-        SceneManager.LoadScene("MainLobby");
+        SceneManager.LoadScene("Lobby");
     }
 }

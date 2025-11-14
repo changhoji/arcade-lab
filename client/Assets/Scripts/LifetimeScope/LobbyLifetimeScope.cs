@@ -5,6 +5,6 @@ public class MainLobbyLifetimeScope : LifetimeScope
 {
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.RegisterComponentInHierarchy<LobbyPlayerManager>();
+        builder.RegisterComponentInHierarchy<LobbyManager>();
     }
 }

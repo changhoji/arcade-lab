@@ -34,7 +34,7 @@ public class LobbyPlayer
 public class NetworkManager : MonoBehaviour, IInitializable
 {
     SocketIOUnity m_AuthSocket;
-    SocketIOUnity m_MainLobbySocket;
+    SocketIOUnity m_LobbySocket;
 
     public string UserId;
 
@@ -71,43 +71,43 @@ public class NetworkManager : MonoBehaviour, IInitializable
         });
     }
     
-    public async Task ConnectToMainLobby()
+    public async Task ConnectToLobby()
     {
         if (string.IsNullOrEmpty(UserId))
         {
             return;
         }
 
-        if (m_MainLobbySocket != null)
+        if (m_LobbySocket != null)
         {
             return;
         }
 
-        m_MainLobbySocket = new SocketIOUnity("http://localhost:3000/mainlobby", new SocketIOOptions
+        m_LobbySocket = new SocketIOUnity("http://localhost:3000/lobby", new SocketIOOptions
         {
             Auth = new Dictionary<string, string>
             {
                 { "userId", UserId }
             }
         });
-        m_MainLobbySocket.JsonSerializer = new NewtonsoftJsonSerializer();
-        m_MainLobbySocket.OnUnityThread("player:others", response =>
+        m_LobbySocket.JsonSerializer = new NewtonsoftJsonSerializer();
+        m_LobbySocket.OnUnityThread("player:others", response =>
         {
             var others = response.GetValue<LobbyPlayer[]>();
             OnOtherPlayersReceived?.Invoke(others);
         });
-        m_MainLobbySocket.OnUnityThread("player:moved", response =>
+        m_LobbySocket.OnUnityThread("player:moved", response =>
         {
             var movedData = response.GetValue<PlayerMovedData>();
             OnPlayerMoved?.Invoke(movedData);
         });
 
-        await m_MainLobbySocket.ConnectAsync();  
+        await m_LobbySocket.ConnectAsync();  
     }
 
     public void EmitPlayerMove(float x, float y)
     {
-        m_MainLobbySocket.EmitAsync("player:move", new {
+        m_LobbySocket.EmitAsync("player:move", new {
             x = x,
             y = y
         });

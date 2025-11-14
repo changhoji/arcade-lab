@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { v4 as uuidv4 } from 'uuid';
-import { PlayerManager } from "../managers/PlayerManager";
+import { PlayerManager } from "../managers/playerManager";
 
 export function SetupAuthNamespace(io: Server, playerManager: PlayerManager) {
     io.on("connection", (socket) => {

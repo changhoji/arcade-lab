@@ -1,15 +1,15 @@
 import { Server } from "socket.io";
-import { MainLobbyManager } from "../managers/MainLobbyManager";
-import { PlayerManager } from "../managers/PlayerManager";
+import { LobbyManager } from "../managers/lobbyManager";
+import { PlayerManager } from "../managers/playerManager";
 import { SetupAuthNamespace } from "./auth";
-import { setupMainLobbyNamespace } from "./mainLobby";
+import { setupLobbyNamespace } from "./lobby";
 
 export function setupNameSpaces(io: Server) {
     const playerManager = new PlayerManager();
-    const mainLobbyManager = new MainLobbyManager();
+    const lobbyManager = new LobbyManager();
 
     SetupAuthNamespace(io, playerManager);
 
-    const mainLobby = io.of("/mainlobby");
-    setupMainLobbyNamespace(mainLobby, playerManager, mainLobbyManager);
+    const mainLobby = io.of("/lobby");
+    setupLobbyNamespace(mainLobby, playerManager, lobbyManager);
 }

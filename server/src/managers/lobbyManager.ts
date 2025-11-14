@@ -1,7 +1,7 @@
 import { Position } from '../types/common';
 import { LobbyPlayer } from '../types/lobby';
 
-export class MainLobbyManager {
+export class LobbyManager {
     private lobbyPlayers = new Map<string, LobbyPlayer>();
 
     addDummyPlayers(count: number = 3) {
@@ -12,8 +12,8 @@ export class MainLobbyManager {
                 userId: dummyUserId,
                 socketId: dummySocketId,
                 position: {
-                    x: Math.random() * 10 - 5,  // -5 ~ 5 랜덤
-                    y: Math.random() * 10 - 5   // -5 ~ 5 랜덤
+                    x: Math.random() * 10 - 5,
+                    y: Math.random() * 10 - 5
                 }
             };
             this.lobbyPlayers.set(dummyUserId, dummyPlayer);

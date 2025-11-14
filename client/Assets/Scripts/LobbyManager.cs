@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using VContainer;
 
-public class LobbyPlayerManager : MonoBehaviour
+public class LobbyManager : MonoBehaviour
 {
     [Inject] NetworkManager m_NetworkManager;
     [SerializeField] GameObject m_PlayerPrefab;
@@ -21,7 +21,7 @@ public class LobbyPlayerManager : MonoBehaviour
         m_NetworkManager.OnSignInSuccess += OnSignInSuccess;
         m_NetworkManager.OnOtherPlayersReceived += OnOtherPlayersReceived;
         m_NetworkManager.OnPlayerMoved += OnPlayerMoved;
-        await m_NetworkManager.ConnectToMainLobby();
+        await m_NetworkManager.ConnectToLobby();
         
         Debug.Log("[PlayerManager] Events subscribed");
         

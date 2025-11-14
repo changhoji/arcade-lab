@@ -1,9 +1,9 @@
 import { Namespace } from "socket.io";
-import { MainLobbyManager } from "../managers/MainLobbyManager";
-import { PlayerManager } from "../managers/PlayerManager";
+import { LobbyManager } from "../managers/lobbyManager";
+import { PlayerManager } from "../managers/playerManager";
 import { Position } from "../types/common";
 
-export function setupMainLobbyNamespace(namespace: Namespace, playerManager: PlayerManager, lobbyManager: MainLobbyManager) {
+export function setupLobbyNamespace(namespace: Namespace, playerManager: PlayerManager, lobbyManager: LobbyManager) {
     namespace.on("connection", (socket) => {
         const userId = socket.handshake.auth.userId; 
         if (!userId) {
@@ -13,7 +13,7 @@ export function setupMainLobbyNamespace(namespace: Namespace, playerManager: Pla
 
         console.log(`Player ${userId} connected to main lobby`);
 
-        playerManager.updateNamespace(userId, "/mainlobby");
+        playerManager.updateNamespace(userId, "/lobby");
         const player = lobbyManager.addPlayer(userId, socket.id);
 
         const otherPlayers = lobbyManager.getOtherPlayers(userId);
