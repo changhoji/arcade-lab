@@ -4,11 +4,10 @@ using VContainer;
 
 public class MainMenuUI : MonoBehaviour
 {
-    [Inject] NetworkManager m_NetworkManager;
-    public NetworkManager NetworkManager => m_NetworkManager;
+    [Inject] AuthManager m_AuthManager;
 
     public async void OnClickGuest()
     {
-        await NetworkManager.SignInAnonymously();
+        await m_AuthManager.SignInAnonymously();
     }
 }

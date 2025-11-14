@@ -1,16 +1,17 @@
 using System;
+using Unity.Collections;
 using UnityEngine;
+using VContainer;
 
 public class PlayerController : MonoBehaviour
 {
+    [Inject] LobbyManager m_LobbyManager;
     [SerializeField] float m_MoveSpeed = 5f;
     Rigidbody2D m_Rigidbody;
     Vector2 m_MoveInput;
 
     public string UserId;
     public bool IsOwner = false;
-
-    NetworkManager m_NetworkManager;
 
     float m_LastSendTime;
 
@@ -41,8 +42,7 @@ public class PlayerController : MonoBehaviour
         {
             m_Rigidbody.bodyType = RigidbodyType2D.Kinematic;
         }
-        m_NetworkManager = FindAnyObjectByType<NetworkManager>();
-        Debug.Log(m_NetworkManager);
+        m_LobbyManager = FindAnyObjectByType<LobbyManager>();
     }
 
     void Update()
@@ -50,7 +50,7 @@ public class PlayerController : MonoBehaviour
         if (!IsOwner) return;
         m_MoveInput = new(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-        if (m_MoveInput != Vector2.zero && Time.time - m_LastSendTime > 0.02f)
+        if (m_MoveInput != Vector2.zero && Time.time - m_LastSendTime > 0.01f)
         {
             m_LastSendTime = Time.time;
             SendPosition();
@@ -64,6 +64,9 @@ public class PlayerController : MonoBehaviour
 
     void SendPosition()
     {
-        m_NetworkManager.EmitPlayerMove(transform.position.x, transform.position.y);
+        Position pos = new Position();
+        pos.x = transform.position.x;
+        pos.y = transform.position.y;
+        m_LobbyManager.EmitPlayerMove(pos);
     }
 }

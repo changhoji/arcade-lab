@@ -1,24 +1,36 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer;
 
 public class AuthManager : MonoBehaviour
 {
-    [Inject] NetworkManager m_NetworkManager;
+    public string UserId { get; private set; } = null;
 
-    void Start()
+    AuthNetworkSerivice m_AuthSerivce;
+
+    [Inject]
+    public void Construct(AuthNetworkSerivice authService)
     {
-        m_NetworkManager.OnSignInSuccess += OnSignInSuccess;
+        m_AuthSerivce = authService;
+        m_AuthSerivce.OnSignInSuccess += OnSignInSuccess;
+        DontDestroyOnLoad(gameObject);
+    }
+    
+    public async Task SignInAnonymously()
+    {
+        await m_AuthSerivce.SignInAnonymously();
     }
 
     void OnDestroy()
     {
-        m_NetworkManager.OnSignInSuccess -= OnSignInSuccess;
+        m_AuthSerivce.OnSignInSuccess -= OnSignInSuccess;
     }
-    
+
     void OnSignInSuccess(string userId)
     {
-        Debug.Log("AuthManager.OnSignInSuccess");
+        Debug.Log("OnSignInSuccess");
+        UserId = userId;
         SceneManager.LoadScene("Lobby");
     }
 }

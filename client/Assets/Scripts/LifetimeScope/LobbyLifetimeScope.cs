@@ -6,5 +6,8 @@ public class MainLobbyLifetimeScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterComponentInHierarchy<LobbyManager>();
+        builder.Register<LobbyNetworkService>(Lifetime.Singleton)
+            .AsImplementedInterfaces()
+            .AsSelf();
     }
 }

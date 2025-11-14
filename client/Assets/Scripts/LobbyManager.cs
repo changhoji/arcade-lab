@@ -5,40 +5,51 @@ using UnityEditor;
 using UnityEngine;
 using VContainer;
 
+public class Position
+{
+    public float x;
+    public float y;
+}
+
+public class LobbyPlayer
+{
+    public string userId;
+    public Position position;
+}
+
+public class PlayerMovedData
+{
+    public string userId;
+    public float x;
+    public float y;
+}
+
 public class LobbyManager : MonoBehaviour
 {
-    [Inject] NetworkManager m_NetworkManager;
     [SerializeField] GameObject m_PlayerPrefab;
+    [Inject] AuthManager m_AuthManager;
+
+    LobbyNetworkService m_LobbyService;
     Dictionary<string, PlayerController> m_Players = new();
-    string m_UserId = "";
+
+
+    [Inject]
+    public void Construct(LobbyNetworkService lobbyService)
+    {
+        m_LobbyService = lobbyService;
+        m_LobbyService.OnOtherPlayersReceived += OnOtherPlayersReceived;
+        m_LobbyService.OnPlayerMoved += OnPlayerMoved;
+    }
+
+    public void EmitPlayerMove(Position position)
+    {
+        m_LobbyService.EmitPlayerMove(position);
+    }
 
     async void Start()
     {
-        Debug.Log("[PlayerManager] Start called");
-
-        
-        // 이벤트 구독
-        m_NetworkManager.OnSignInSuccess += OnSignInSuccess;
-        m_NetworkManager.OnOtherPlayersReceived += OnOtherPlayersReceived;
-        m_NetworkManager.OnPlayerMoved += OnPlayerMoved;
-        await m_NetworkManager.ConnectToLobby();
-        
-        Debug.Log("[PlayerManager] Events subscribed");
-        
-        // 이미 로그인됐는지 확인
-        if (!string.IsNullOrEmpty(m_NetworkManager.UserId))
-        {
-            Debug.Log("[PlayerManager] Already signed in, spawning my player");
-            OnSignInSuccess(m_NetworkManager.UserId);
-        }
-        
-    }
-
-    void OnSignInSuccess(string userId)
-    {
-        Debug.Log($"PlayerManager.OnSignInSuccess: {userId}");
-        m_UserId = userId;
-        SpawnPlayer(userId, Vector2.zero, true);
+        await m_LobbyService.ConnectLobby();
+        SpawnPlayer(m_AuthManager.UserId, Vector2.zero, true);
     }
 
     void OnOtherPlayersReceived(LobbyPlayer[] players)
@@ -53,7 +64,7 @@ public class LobbyManager : MonoBehaviour
             );
         }
     }
-    
+
     void OnPlayerMoved(PlayerMovedData movedData)
     {
         Debug.Log($"PlayerManager.OnPlayerMoved: {movedData}");
