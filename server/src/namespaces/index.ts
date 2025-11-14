@@ -10,6 +10,6 @@ export function setupNameSpaces(io: Server) {
 
     SetupAuthNamespace(io, playerManager);
 
-    const mainLobby = io.of("/lobby");
-    setupLobbyNamespace(mainLobby, playerManager, lobbyManager);
+    const lobby = io.of("/lobby");
+    setupLobbyNamespace(lobby, playerManager, lobbyManager);
 }
