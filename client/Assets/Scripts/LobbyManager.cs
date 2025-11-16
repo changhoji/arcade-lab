@@ -39,6 +39,7 @@ public class LobbyManager : MonoBehaviour
         m_LobbyService = lobbyService;
         m_LobbyService.OnOtherPlayersReceived += OnOtherPlayersReceived;
         m_LobbyService.OnPlayerMoved += OnPlayerMoved;
+        m_LobbyService.OnPlayerJoined += OnPlayerJoined;
     }
 
     public void EmitPlayerMove(Position position)
@@ -72,6 +73,12 @@ public class LobbyManager : MonoBehaviour
         {
             pc.UpdateRemotePosition(movedData.x, movedData.y);
         }
+    }
+
+    void OnPlayerJoined(LobbyPlayer player)
+    {
+        Debug.Log("lobbyManager.OnPlayerJoined");
+        SpawnPlayer(player.userId, new Vector2(player.position.x, player.position.y), false);
     }
 
     void SpawnPlayer(string userId, Vector2 position, bool isOwner)

@@ -18,7 +18,7 @@ export function setupLobbyNamespace(namespace: Namespace, playerManager: PlayerM
 
         const otherPlayers = lobbyManager.getOtherPlayers(userId);
         socket.emit("player:others", otherPlayers);
-        console.log("emitted");
+        socket.broadcast.emit("player:joined", player);    
 
         socket.on("player:move", (position: Position) => {
             console.log(`player moved to (${position.x}, ${position.y})`)

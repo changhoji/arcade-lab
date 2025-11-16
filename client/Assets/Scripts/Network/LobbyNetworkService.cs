@@ -12,6 +12,7 @@ public class LobbyNetworkService : INetworkService
 
     public event Action<LobbyPlayer[]> OnOtherPlayersReceived;
     public event Action<PlayerMovedData> OnPlayerMoved;
+    public event Action<LobbyPlayer> OnPlayerJoined;
 
     [Inject] AuthManager m_AuthManager;
 
@@ -40,6 +41,13 @@ public class LobbyNetworkService : INetworkService
         {
             var movedData = response.GetValue<PlayerMovedData>();
             OnPlayerMoved?.Invoke(movedData);
+        });
+
+        m_LobbySocket.OnUnityThread("player:joined", response =>
+        {
+            Debug.Log("joined");
+            var joinedPlayer = response.GetValue<LobbyPlayer>();
+            OnPlayerJoined?.Invoke(joinedPlayer);
         });
     }
 
