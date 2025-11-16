@@ -40,6 +40,7 @@ public class LobbyManager : MonoBehaviour
         m_LobbyService.OnOtherPlayersReceived += OnOtherPlayersReceived;
         m_LobbyService.OnPlayerMoved += OnPlayerMoved;
         m_LobbyService.OnPlayerJoined += OnPlayerJoined;
+        m_LobbyService.OnPlayerLeft += OnPlayerLeft;
     }
 
     public void EmitPlayerMove(Position position)
@@ -81,6 +82,11 @@ public class LobbyManager : MonoBehaviour
         SpawnPlayer(player.userId, new Vector2(player.position.x, player.position.y), false);
     }
 
+    void OnPlayerLeft(string userId)
+    {
+        RemovePlayer(userId);
+    }
+
     void SpawnPlayer(string userId, Vector2 position, bool isOwner)
     {
         if (m_Players.ContainsKey(userId))
@@ -95,5 +101,35 @@ public class LobbyManager : MonoBehaviour
         pc.IsOwner = isOwner;
 
         m_Players.Add(userId, pc);
+    }
+
+    void RemovePlayer(string userId)
+    {
+        Debug.Log("LobbyManager.RemovePlayer");
+
+        if (!m_Players.ContainsKey(userId))
+        {
+            Debug.LogWarning($"Player {userId} is already left");
+            return;
+        }
+
+        if (m_Players.TryGetValue(userId, out var pc))
+        {
+            Debug.Log("destroy");
+            Destroy(pc.gameObject);
+            m_Players.Remove(userId);
+        }
+    }
+
+    void OnDestroy()
+    {
+        if (m_LobbyService != null)
+        {
+            m_LobbyService.OnOtherPlayersReceived -= OnOtherPlayersReceived;
+            m_LobbyService.OnPlayerMoved -= OnPlayerMoved;
+            m_LobbyService.OnPlayerJoined -= OnPlayerJoined;
+            m_LobbyService.OnPlayerLeft -= OnPlayerLeft;
+            m_LobbyService.DisconnectLobby();
+        }
     }
 }

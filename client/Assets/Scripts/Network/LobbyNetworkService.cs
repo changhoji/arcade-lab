@@ -13,6 +13,8 @@ public class LobbyNetworkService : INetworkService
     public event Action<LobbyPlayer[]> OnOtherPlayersReceived;
     public event Action<PlayerMovedData> OnPlayerMoved;
     public event Action<LobbyPlayer> OnPlayerJoined;
+    public event Action<string> OnPlayerLeft;
+
 
     [Inject] AuthManager m_AuthManager;
 
@@ -49,11 +51,24 @@ public class LobbyNetworkService : INetworkService
             var joinedPlayer = response.GetValue<LobbyPlayer>();
             OnPlayerJoined?.Invoke(joinedPlayer);
         });
+
+        m_LobbySocket.OnUnityThread("player:left", response =>
+        {
+            Debug.Log("left");
+            var leftId = response.GetValue<string>(0);
+            Debug.Log(leftId);
+            OnPlayerLeft?.Invoke(leftId);
+        });
     }
 
     public async Task ConnectLobby()
     {
         await m_LobbySocket.ConnectAsync();
+    }
+
+    public void DisconnectLobby()
+    {
+        m_LobbySocket.Disconnect();
     }
     
     public void EmitPlayerMove(Position position)

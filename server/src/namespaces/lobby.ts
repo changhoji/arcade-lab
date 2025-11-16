@@ -30,5 +30,11 @@ export function setupLobbyNamespace(namespace: Namespace, playerManager: PlayerM
                 });
             }
         });
+
+        socket.on("disconnect", () => {
+            console.log("player disconnected from lobby");
+            lobbyManager.removePlayer(userId);
+            socket.broadcast.emit("player:left", userId);
+        })
     })
 }
