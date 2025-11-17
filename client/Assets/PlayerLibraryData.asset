@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a342c95d82f114f4797786660ca88274, type: 3}
   m_Name: PlayerLibraryData
   m_EditorClassIdentifier: 
-  Library: []
+  Library:
+  - {fileID: 7108339969198208228, guid: 65bd8139e325047118466c8c920907c4, type: 3}
+  - {fileID: 7108339969198208228, guid: e60647ea0568744f99c43417d3e10578, type: 3}
+  - {fileID: 7108339969198208228, guid: 39c60c67a87e5437eb31fe4f8c05368d, type: 3}
+  - {fileID: 7108339969198208228, guid: 47fdf4b0f96884c6aa401502e0671985, type: 3}

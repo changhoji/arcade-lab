@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
 
     float m_LastSendTime;
     Vector3 m_PreviousPosition;
-    int m_SkinIndex = 0;
+    bool m_IsMovable = true;
 
     public void UpdateRemotePosition(float x, float y)
     {
@@ -35,6 +35,16 @@ public class PlayerController : MonoBehaviour
         }
         
         Debug.Log($"after udpateposition, ({transform.position.x}, {transform.position.y})");
+    }
+
+    public void SetIsMovable(bool value)
+    {
+        m_IsMovable = value;
+    }
+
+    public void SetSkin(SpriteLibraryAsset libraryAsset)
+    {
+        m_SpriteLibrary.spriteLibraryAsset = libraryAsset;
     }
 
     void Awake()
@@ -73,22 +83,18 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            m_SkinIndex = (m_SkinIndex + 1) % 4;
-            m_SpriteLibrary.spriteLibraryAsset = m_PlayerLibrary.Library[m_SkinIndex];
-        }
+        if (!m_IsMovable) return;
         m_MoveInput = new(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if (m_MoveInput != Vector2.zero && Time.time - m_LastSendTime > 0.01f)
         {
             m_LastSendTime = Time.time;
             SendPosition();
-            m_Animator.SetBool("Walking", true);
+            m_Animator.SetBool("IsMoving", true);
         }
         else
         {
-            m_Animator.SetBool("Walking", false);
+            m_Animator.SetBool("IsMoving", false);
         }
     }
 
