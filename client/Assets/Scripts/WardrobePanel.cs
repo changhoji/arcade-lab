@@ -38,7 +38,7 @@ public class WardrobePanel : MonoBehaviour
         {
             if (m_Player)
             {
-                m_Player.SetSkin(m_PlayerLibrary.Library[m_SelectedIndex]);
+                m_Player.SetSkin(m_PlayerLibrary.Library[m_SelectedIndex], m_SelectedIndex);
             }
             m_Images[m_PreviousIndex].color = Color.grey;
             m_Images[m_SelectedIndex].color = Color.white;

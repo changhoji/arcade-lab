@@ -42,9 +42,15 @@ public class PlayerController : MonoBehaviour
         m_IsMovable = value;
     }
 
-    public void SetSkin(SpriteLibraryAsset libraryAsset)
+    public void SetSkin(SpriteLibraryAsset libraryAsset, int index)
     {
         m_SpriteLibrary.spriteLibraryAsset = libraryAsset;
+        m_LobbyManager.EmitPlayerSkin(index);
+    }
+
+    public void SetSkinIndex(int index)
+    {
+        m_SpriteLibrary.spriteLibraryAsset = m_PlayerLibrary.Library[index];
     }
 
     void Awake()
@@ -114,5 +120,10 @@ public class PlayerController : MonoBehaviour
         pos.x = transform.position.x;
         pos.y = transform.position.y;
         m_LobbyManager.EmitPlayerMove(pos);
+    }
+
+    void SendSkin()
+    {
+        // m_LobbyManager.
     }
 }

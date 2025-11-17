@@ -4,27 +4,11 @@ import { LobbyPlayer } from '../types/lobby';
 export class LobbyManager {
     private lobbyPlayers = new Map<string, LobbyPlayer>();
 
-    addDummyPlayers(count: number = 3) {
-        for (let i = 0; i < count; i++) {
-            const dummyUserId = `dummy-${i}`;
-            const dummySocketId = `socket-dummy-${i}`;
-            const dummyPlayer: LobbyPlayer = {
-                userId: dummyUserId,
-                socketId: dummySocketId,
-                position: {
-                    x: Math.random() * 10 - 5,
-                    y: Math.random() * 10 - 5
-                }
-            };
-            this.lobbyPlayers.set(dummyUserId, dummyPlayer);
-        }
-        console.log(`Added ${count} dummy players`);
-    }
-
     addPlayer(userId: string, socketId: string) {
         const player: LobbyPlayer = {
             userId,
             socketId,
+            skinIndex: 0,
             position: { x: 0, y: 0 }
         };
         this.lobbyPlayers.set(userId, player);
@@ -39,6 +23,15 @@ export class LobbyManager {
         const player = this.lobbyPlayers.get(userId);
         if (player) {
             player.position = position;
+            return true;
+        }
+        return false;
+    }
+
+    updateSkin(userId: string, skinIndex: number) {
+        const player = this.lobbyPlayers.get(userId);
+        if (player) {
+            player.skinIndex = skinIndex;
             return true;
         }
         return false;

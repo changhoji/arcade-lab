@@ -14,7 +14,7 @@ public class LobbyNetworkService : INetworkService
     public event Action<PlayerMovedData> OnPlayerMoved;
     public event Action<LobbyPlayer> OnPlayerJoined;
     public event Action<string> OnPlayerLeft;
-
+    public event Action<SkinData> OnPlayerSkin;
 
     [Inject] AuthManager m_AuthManager;
 
@@ -59,6 +59,12 @@ public class LobbyNetworkService : INetworkService
             Debug.Log(leftId);
             OnPlayerLeft?.Invoke(leftId);
         });
+
+        m_LobbySocket.OnUnityThread("player:skin", response =>
+        {
+            var skinData = response.GetValue<SkinData>();
+            OnPlayerSkin?.Invoke(skinData);
+        });
     }
 
     public async Task ConnectLobby()
@@ -78,5 +84,10 @@ public class LobbyNetworkService : INetworkService
             x = position.x,
             y = position.y
         });
+    }
+
+    public void EmitPlayerSkin(int skinIndex)
+    {
+        m_LobbySocket.Emit("player:skin", skinIndex);
     }
 }

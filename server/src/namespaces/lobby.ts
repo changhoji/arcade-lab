@@ -30,6 +30,16 @@ export function setupLobbyNamespace(namespace: Namespace, playerManager: PlayerM
                 });
             }
         });
+        
+        socket.on("player:skin", (skinIndex: number) => {
+            console.log(`player changed skin, index = ${skinIndex}`);
+            if (lobbyManager.updateSkin(userId, skinIndex)) {
+                socket.broadcast.emit("player:skin", {
+                    userId: userId,
+                    skinIndex: skinIndex
+                })
+            }
+        });
 
         socket.on("disconnect", () => {
             console.log("player disconnected from lobby");
