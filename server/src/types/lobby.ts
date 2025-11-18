@@ -1,15 +1,16 @@
-import { PlayerBase, Position } from "./common";
+import { PlayerBase, Position } from './common';
 
-export interface LobbyPlayer extends PlayerBase {
+export interface LobbyPlayerData extends PlayerBase {
     position: Position;
     skinIndex: number;
 }
 
-export interface LobbyState {
-    lobbyPlayers: LobbyPlayer[];
+export interface PlayerMoveData {
+    userId: string;
+    position: Position
 }
 
-export interface SkinData {
+export interface PlayerSkinData {
     userId: string;
     skinIndex: number;
 }

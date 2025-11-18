@@ -16,6 +16,11 @@ public class AuthManager : MonoBehaviour
         m_AuthSerivce.OnSignInSuccess += OnSignInSuccess;
         DontDestroyOnLoad(gameObject);
     }
+
+    async void Start()
+    {
+        await m_AuthSerivce.ConnectAsync();
+    }
     
     public async Task SignInAnonymously()
     {

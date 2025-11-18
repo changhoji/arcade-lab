@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ArcadeLab.Data;
 using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
 using UnityEngine;
@@ -8,15 +9,15 @@ using VContainer;
 
 public class LobbyNetworkService : INetworkService
 {
-    private SocketIOUnity m_LobbySocket;
-
-    public event Action<LobbyPlayer[]> OnOtherPlayersReceived;
-    public event Action<PlayerMovedData> OnPlayerMoved;
-    public event Action<LobbyPlayer> OnPlayerJoined;
+    public event Action<LobbyPlayerData[]> OnOtherPlayersReceived;
+    public event Action<PlayerMoveData> OnPlayerMoved;
+    public event Action<LobbyPlayerData> OnPlayerJoined;
     public event Action<string> OnPlayerLeft;
-    public event Action<SkinData> OnPlayerSkin;
+    public event Action<PlayerSkinData> OnPlayerSkin;
 
     [Inject] AuthManager m_AuthManager;
+    SocketIOUnity m_LobbySocket;
+
 
     public void Initialize()
     {
@@ -35,24 +36,24 @@ public class LobbyNetworkService : INetworkService
     {
         m_LobbySocket.OnUnityThread("player:others", response =>
         {
-            var others = response.GetValue<LobbyPlayer[]>();
+            var others = response.GetValue<LobbyPlayerData[]>();
             OnOtherPlayersReceived?.Invoke(others);
         });
 
-        m_LobbySocket.OnUnityThread("player:moved", response =>
+        m_LobbySocket.OnUnityThread("player:move", response =>
         {
-            var movedData = response.GetValue<PlayerMovedData>();
+            var movedData = response.GetValue<PlayerMoveData>();
             OnPlayerMoved?.Invoke(movedData);
         });
 
-        m_LobbySocket.OnUnityThread("player:joined", response =>
+        m_LobbySocket.OnUnityThread("player:join", response =>
         {
             Debug.Log("joined");
-            var joinedPlayer = response.GetValue<LobbyPlayer>();
+            var joinedPlayer = response.GetValue<LobbyPlayerData>();
             OnPlayerJoined?.Invoke(joinedPlayer);
         });
 
-        m_LobbySocket.OnUnityThread("player:left", response =>
+        m_LobbySocket.OnUnityThread("player:leave", response =>
         {
             Debug.Log("left");
             var leftId = response.GetValue<string>(0);
@@ -62,28 +63,24 @@ public class LobbyNetworkService : INetworkService
 
         m_LobbySocket.OnUnityThread("player:skin", response =>
         {
-            var skinData = response.GetValue<SkinData>();
+            var skinData = response.GetValue<PlayerSkinData>();
             OnPlayerSkin?.Invoke(skinData);
         });
     }
 
-    public async Task ConnectLobby()
+    public async Task ConnectAsync()
     {
         await m_LobbySocket.ConnectAsync();
     }
 
-    public void DisconnectLobby()
+    public void Disconnect()
     {
         m_LobbySocket.Disconnect();
     }
-    
+
     public void EmitPlayerMove(Position position)
     {
-        m_LobbySocket.Emit("player:move", new
-        {
-            x = position.x,
-            y = position.y
-        });
+        m_LobbySocket.Emit("player:move", position);
     }
 
     public void EmitPlayerSkin(int skinIndex)

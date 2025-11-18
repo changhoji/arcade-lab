@@ -2,49 +2,47 @@ import { Namespace } from "socket.io";
 import { LobbyManager } from "../managers/lobbyManager";
 import { PlayerManager } from "../managers/playerManager";
 import { Position } from "../types/common";
+import { PlayerMoveData, PlayerSkinData } from "../types/lobby";
 
 export function setupLobbyNamespace(namespace: Namespace, playerManager: PlayerManager, lobbyManager: LobbyManager) {
     namespace.on("connection", (socket) => {
-        const userId = socket.handshake.auth.userId; 
+        const userId = socket.handshake.auth.userId;
         if (!userId) {
             socket.disconnect();
             return;
         }
 
-        console.log(`Player ${userId} connected to main lobby`);
-
         playerManager.updateNamespace(userId, "/lobby");
-        const player = lobbyManager.addPlayer(userId, socket.id);
-
+        const player = lobbyManager.addPlayer(userId);
         const otherPlayers = lobbyManager.getOtherPlayers(userId);
+
         socket.emit("player:others", otherPlayers);
-        socket.broadcast.emit("player:joined", player);    
+        socket.broadcast.emit("player:join", player);
 
         socket.on("player:move", (position: Position) => {
-            console.log(`player moved to (${position.x}, ${position.y})`)
             if (lobbyManager.updatePosition(userId, position)) {
-                socket.broadcast.emit("player:moved", {
+                const moveData: PlayerMoveData = {
                     userId,
-                    x: position.x,
-                    y: position.y
-                });
+                    position
+                }
+                socket.broadcast.emit("player:move", moveData);
             }
         });
-        
+
         socket.on("player:skin", (skinIndex: number) => {
-            console.log(`player changed skin, index = ${skinIndex}`);
             if (lobbyManager.updateSkin(userId, skinIndex)) {
-                socket.broadcast.emit("player:skin", {
-                    userId: userId,
-                    skinIndex: skinIndex
-                })
+                const skinData: PlayerSkinData = {
+                    userId,
+                    skinIndex
+                };
+                socket.broadcast.emit("player:skin", skinData)
             }
         });
 
         socket.on("disconnect", () => {
             console.log("player disconnected from lobby");
             lobbyManager.removePlayer(userId);
-            socket.broadcast.emit("player:left", userId);
+            socket.broadcast.emit("player:leave", userId);
         })
     })
 }

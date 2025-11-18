@@ -9,14 +9,13 @@ public class AuthNetworkSerivice : INetworkService
 {
     public event Action<string> OnSignInSuccess;
 
-    private SocketIOUnity m_AuthSocket;
+    SocketIOUnity m_AuthSocket;
 
     public void Initialize()
     {
         m_AuthSocket = new SocketIOUnity("http://localhost:3000");
         m_AuthSocket.JsonSerializer = new NewtonsoftJsonSerializer();
         RegisterEventListeners();
-        m_AuthSocket.Connect();
     }
 
     public void RegisterEventListeners()
@@ -26,6 +25,16 @@ public class AuthNetworkSerivice : INetworkService
             var userId = response.GetValue<string>(0);
             OnSignInSuccess?.Invoke(userId);    
         });
+    }
+
+    public async Task ConnectAsync()
+    {
+        await m_AuthSocket.ConnectAsync();
+    }
+
+    public void Disconnect()
+    {
+        m_AuthSocket.Disconnect();
     }
 
     public async Task SignInAnonymously()

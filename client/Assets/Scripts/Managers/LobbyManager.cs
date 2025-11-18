@@ -1,35 +1,10 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using ArcadeLab.Data;
 using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
 using VContainer;
-
-public class Position
-{
-    public float x;
-    public float y;
-}
-
-public class LobbyPlayer
-{
-    public string userId;
-    public Position position;
-    public int skinIndex;
-}
-
-public class PlayerMovedData
-{
-    public string userId;
-    public float x;
-    public float y;
-}
-
-public class SkinData
-{
-    public string userId;
-    public int skinIndex;
-}
 
 public class LobbyManager : MonoBehaviour
 {
@@ -51,23 +26,13 @@ public class LobbyManager : MonoBehaviour
         m_LobbyService.OnPlayerSkin += OnPlayerSkin;
     }
 
-    public void EmitPlayerMove(Position position)
-    {
-        m_LobbyService.EmitPlayerMove(position);
-    }
-
-    public void EmitPlayerSkin(int skinIndex)
-    {
-        m_LobbyService.EmitPlayerSkin(skinIndex);
-    }
-
     async void Start()
     {
-        await m_LobbyService.ConnectLobby();
+        await m_LobbyService.ConnectAsync();
         SpawnPlayer(m_AuthManager.UserId, Vector2.zero, true, skinIndex: 0);
     }
-
-    void OnOtherPlayersReceived(LobbyPlayer[] players)
+    
+    void OnOtherPlayersReceived(LobbyPlayerData[] players)
     {
         Debug.Log($"PlayerManager.OnOtherPlayersReceived: {players}");
         foreach (var player in players)
@@ -81,18 +46,16 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    void OnPlayerMoved(PlayerMovedData movedData)
+    void OnPlayerMoved(PlayerMoveData moveData)
     {
-        Debug.Log($"PlayerManager.OnPlayerMoved: {movedData}");
-        if (m_Players.TryGetValue(movedData.userId, out PlayerController pc))
+        if (m_Players.TryGetValue(moveData.userId, out PlayerController pc))
         {
-            pc.UpdateRemotePosition(movedData.x, movedData.y);
+            pc.UpdateRemotePosition(moveData.position);
         }
     }
 
-    void OnPlayerJoined(LobbyPlayer player)
+    void OnPlayerJoined(LobbyPlayerData player)
     {
-        Debug.Log("lobbyManager.OnPlayerJoined");
         SpawnPlayer(player.userId, new Vector2(player.position.x, player.position.y), false, player.skinIndex);
     }
 
@@ -101,7 +64,7 @@ public class LobbyManager : MonoBehaviour
         RemovePlayer(userId);
     }
 
-    void OnPlayerSkin(SkinData skinData)
+    void OnPlayerSkin(PlayerSkinData skinData)
     {
         if (m_Players.TryGetValue(skinData.userId, out var pc))
         {
@@ -123,22 +86,24 @@ public class LobbyManager : MonoBehaviour
         pc.IsOwner = isOwner;
         pc.SetSkinIndex(skinIndex);
 
+        if (pc.IsOwner)
+        {
+            pc.OnMoved += m_LobbyService.EmitPlayerMove;
+            pc.OnSkinChanged += m_LobbyService.EmitPlayerSkin;
+        }
+
         m_Players.Add(userId, pc);
     }
 
     void RemovePlayer(string userId)
     {
-        Debug.Log("LobbyManager.RemovePlayer");
-
-        if (!m_Players.ContainsKey(userId))
-        {
-            Debug.LogWarning($"Player {userId} is already left");
-            return;
-        }
-
         if (m_Players.TryGetValue(userId, out var pc))
         {
-            Debug.Log("destroy");
+            if (pc.IsOwner)
+            {
+                pc.OnMoved -= m_LobbyService.EmitPlayerMove;
+                pc.OnSkinChanged -= m_LobbyService.EmitPlayerSkin;
+            }
             Destroy(pc.gameObject);
             m_Players.Remove(userId);
         }
@@ -152,7 +117,7 @@ public class LobbyManager : MonoBehaviour
             m_LobbyService.OnPlayerMoved -= OnPlayerMoved;
             m_LobbyService.OnPlayerJoined -= OnPlayerJoined;
             m_LobbyService.OnPlayerLeft -= OnPlayerLeft;
-            m_LobbyService.DisconnectLobby();
+            m_LobbyService.Disconnect();
         }
     }
 }

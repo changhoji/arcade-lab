@@ -13,7 +13,6 @@ public class WardrobePanel : MonoBehaviour
     void Start()
     {
         m_Images = GetComponentsInChildren<Image>();
-        Debug.Log($"images length = {m_Images.Length}, library length = {m_PlayerLibrary.Library.Length}");
         for (int i = 0; i < k_NumberOfSkin; i++)
         {
             Debug.Log($"i = {i}");
@@ -38,7 +37,7 @@ public class WardrobePanel : MonoBehaviour
         {
             if (m_Player)
             {
-                m_Player.SetSkin(m_PlayerLibrary.Library[m_SelectedIndex], m_SelectedIndex);
+                m_Player.SetSkinIndex(m_SelectedIndex);
             }
             m_Images[m_PreviousIndex].color = Color.grey;
             m_Images[m_SelectedIndex].color = Color.white;

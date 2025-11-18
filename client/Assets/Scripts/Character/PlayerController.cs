@@ -1,4 +1,5 @@
 using System;
+using ArcadeLab.Data;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
@@ -6,35 +7,28 @@ using VContainer;
 
 public class PlayerController : MonoBehaviour
 {
-    [Inject] LobbyManager m_LobbyManager;
-    [SerializeField] float m_MoveSpeed = 5f;
-    [SerializeField] PlayerLibrary m_PlayerLibrary;
-    Rigidbody2D m_Rigidbody;
-    Animator m_Animator;
-    SpriteLibrary m_SpriteLibrary;
-    SpriteRenderer m_SpriteRenderer;
-    Vector2 m_MoveInput;
+    public event Action<Position> OnMoved;
+    public event Action<int> OnSkinChanged;
 
     public string UserId;
     public bool IsOwner = false;
 
+    [SerializeField] float m_MoveSpeed = 5f;
+    [SerializeField] PlayerLibrary m_PlayerLibrary;
+
+    Rigidbody2D m_Rigidbody;
+    Animator m_Animator;
+    SpriteLibrary m_SpriteLibrary;
+    SpriteRenderer m_SpriteRenderer;
+
+    Vector2 m_MoveInput;
     float m_LastSendTime;
     Vector3 m_PreviousPosition;
     bool m_IsMovable = true;
 
-    public void UpdateRemotePosition(float x, float y)
+    public void UpdateRemotePosition(Position position)
     {
-        Debug.Log($"updateposition: {UserId} -> ({x}, {y})");
-        try
-        {
-            transform.position = new Vector3(x, y, 0);
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning($"in UpdateRemotePosition, {e.Message}");
-        }
-        
-        Debug.Log($"after udpateposition, ({transform.position.x}, {transform.position.y})");
+        transform.position = new Vector3(position.x, position.y);
     }
 
     public void SetIsMovable(bool value)
@@ -42,15 +36,13 @@ public class PlayerController : MonoBehaviour
         m_IsMovable = value;
     }
 
-    public void SetSkin(SpriteLibraryAsset libraryAsset, int index)
-    {
-        m_SpriteLibrary.spriteLibraryAsset = libraryAsset;
-        m_LobbyManager.EmitPlayerSkin(index);
-    }
-
     public void SetSkinIndex(int index)
     {
         m_SpriteLibrary.spriteLibraryAsset = m_PlayerLibrary.Library[index];
+        if (IsOwner)
+        {
+            OnSkinChanged?.Invoke(index);
+        }
     }
 
     void Awake()
@@ -69,7 +61,6 @@ public class PlayerController : MonoBehaviour
         {
             m_Rigidbody.bodyType = RigidbodyType2D.Kinematic;
         }
-        m_LobbyManager = FindAnyObjectByType<LobbyManager>();
     }
 
     void Update()
@@ -95,7 +86,8 @@ public class PlayerController : MonoBehaviour
         if (m_MoveInput != Vector2.zero && Time.time - m_LastSendTime > 0.01f)
         {
             m_LastSendTime = Time.time;
-            SendPosition();
+            Position pos = new Position(transform);
+            OnMoved?.Invoke(pos);
             m_Animator.SetBool("IsMoving", true);
         }
         else
@@ -112,18 +104,5 @@ public class PlayerController : MonoBehaviour
             m_SpriteRenderer.flipX = m_Rigidbody.linearVelocityX < 0;    
         }
         
-    }
-
-    void SendPosition()
-    {
-        Position pos = new Position();
-        pos.x = transform.position.x;
-        pos.y = transform.position.y;
-        m_LobbyManager.EmitPlayerMove(pos);
-    }
-
-    void SendSkin()
-    {
-        // m_LobbyManager.
     }
 }
