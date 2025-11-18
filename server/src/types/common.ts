@@ -6,4 +6,5 @@ export interface Position {
 export interface PlayerBase {
     userId: string;
     skinIndex: number;
+    nickname: string;
 }

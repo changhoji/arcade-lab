@@ -3,12 +3,14 @@ import { LobbyPlayerData } from '../types/lobby';
 
 export class LobbyManager {
     private lobbyPlayers = new Map<string, LobbyPlayerData>();
+    private nextKey = 0;
 
     addPlayer(userId: string): LobbyPlayerData {
         const player: LobbyPlayerData = {
             userId,
             skinIndex: 0,
-            position: { x: 0, y: 0 }
+            position: { x: 0, y: 0 },
+            nickname: `guest${this.nextKey++}`,
         };
         this.lobbyPlayers.set(userId, player);
         return player;
@@ -31,6 +33,16 @@ export class LobbyManager {
         const player = this.lobbyPlayers.get(userId);
         if (player) {
             player.skinIndex = skinIndex;
+            return true;
+        }
+        return false;
+    }
+
+    updateNickname(userId: string, nickname: string): boolean {
+        const player = this.lobbyPlayers.get(userId);
+        if (player)
+        {
+            player.nickname = nickname;
             return true;
         }
         return false;

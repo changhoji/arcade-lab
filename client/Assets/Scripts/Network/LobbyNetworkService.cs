@@ -9,11 +9,13 @@ using VContainer;
 
 public class LobbyNetworkService : INetworkService
 {
+    public event Action<LobbyPlayerData> OnPlayerConnected;
     public event Action<LobbyPlayerData[]> OnOtherPlayersReceived;
     public event Action<PlayerMoveData> OnPlayerMoved;
     public event Action<LobbyPlayerData> OnPlayerJoined;
     public event Action<string> OnPlayerLeft;
     public event Action<PlayerSkinData> OnPlayerSkin;
+    public event Action<PlayerNicknameData> OnPlayerNickname;
 
     [Inject] AuthManager m_AuthManager;
     SocketIOUnity m_LobbySocket;
@@ -34,6 +36,12 @@ public class LobbyNetworkService : INetworkService
 
     public void RegisterEventListeners()
     {
+        m_LobbySocket.OnUnityThread("player:connect", response =>
+        {
+            var player = response.GetValue<LobbyPlayerData>();
+            OnPlayerConnected?.Invoke(player);
+        });
+
         m_LobbySocket.OnUnityThread("player:others", response =>
         {
             var others = response.GetValue<LobbyPlayerData[]>();
@@ -66,6 +74,12 @@ public class LobbyNetworkService : INetworkService
             var skinData = response.GetValue<PlayerSkinData>();
             OnPlayerSkin?.Invoke(skinData);
         });
+
+        m_LobbySocket.OnUnityThread("player:nickname", response =>
+        {
+            var nicknameData = response.GetValue<PlayerNicknameData>();
+            OnPlayerNickname?.Invoke(nicknameData);
+        });
     }
 
     public async Task ConnectAsync()
@@ -86,5 +100,10 @@ public class LobbyNetworkService : INetworkService
     public void EmitPlayerSkin(int skinIndex)
     {
         m_LobbySocket.Emit("player:skin", skinIndex);
+    }
+
+    public void EmitPlayerNickname(string nickname)
+    {
+        m_LobbySocket.Emit("player:nickname", nickname);
     }
 }

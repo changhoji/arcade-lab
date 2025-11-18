@@ -1,5 +1,6 @@
 using System;
 using ArcadeLab.Data;
+using TMPro;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.U2D.Animation;
@@ -9,12 +10,15 @@ public class PlayerController : MonoBehaviour
 {
     public event Action<Position> OnMoved;
     public event Action<int> OnSkinChanged;
+    public event Action<string> OnNicknameChanged;
 
     public string UserId;
     public bool IsOwner = false;
+    public string Nickname = "";
 
     [SerializeField] float m_MoveSpeed = 5f;
     [SerializeField] PlayerLibrary m_PlayerLibrary;
+    [SerializeField] TextMeshPro m_NicknameText;
 
     Rigidbody2D m_Rigidbody;
     Animator m_Animator;
@@ -45,6 +49,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void SetNickname(string nickname)
+    {
+        m_NicknameText.text = nickname;
+        if (IsOwner)
+        {
+            OnNicknameChanged?.Invoke(nickname);
+        }
+    }
+
     void Awake()
     {
         m_Rigidbody = GetComponent<Rigidbody2D>();
@@ -61,6 +74,7 @@ public class PlayerController : MonoBehaviour
         {
             m_Rigidbody.bodyType = RigidbodyType2D.Kinematic;
         }
+        m_NicknameText.text = Nickname;
     }
 
     void Update()

@@ -19,17 +19,23 @@ public class LobbyManager : MonoBehaviour
     public void Construct(LobbyNetworkService lobbyService)
     {
         m_LobbyService = lobbyService;
+        m_LobbyService.OnPlayerConnected += HandlePlayerConnected;
         m_LobbyService.OnOtherPlayersReceived += OnOtherPlayersReceived;
         m_LobbyService.OnPlayerMoved += OnPlayerMoved;
         m_LobbyService.OnPlayerJoined += OnPlayerJoined;
         m_LobbyService.OnPlayerLeft += OnPlayerLeft;
         m_LobbyService.OnPlayerSkin += OnPlayerSkin;
+        m_LobbyService.OnPlayerNickname += OnPlayerNickname;
     }
 
     async void Start()
     {
         await m_LobbyService.ConnectAsync();
-        SpawnPlayer(m_AuthManager.UserId, Vector2.zero, true, skinIndex: 0);
+    }
+
+    void HandlePlayerConnected(LobbyPlayerData player)
+    {
+        SpawnPlayer(player, true);
     }
     
     void OnOtherPlayersReceived(LobbyPlayerData[] players)
@@ -37,12 +43,7 @@ public class LobbyManager : MonoBehaviour
         Debug.Log($"PlayerManager.OnOtherPlayersReceived: {players}");
         foreach (var player in players)
         {
-            SpawnPlayer(
-                player.userId,
-                new Vector2(player.position.x, player.position.y),
-                isOwner: false,
-                skinIndex: player.skinIndex
-            );
+            SpawnPlayer(player, false);
         }
     }
 
@@ -56,7 +57,7 @@ public class LobbyManager : MonoBehaviour
 
     void OnPlayerJoined(LobbyPlayerData player)
     {
-        SpawnPlayer(player.userId, new Vector2(player.position.x, player.position.y), false, player.skinIndex);
+        SpawnPlayer(player, false);
     }
 
     void OnPlayerLeft(string userId)
@@ -72,27 +73,37 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    void SpawnPlayer(string userId, Vector2 position, bool isOwner, int skinIndex)
+    void OnPlayerNickname(PlayerNicknameData nicknameData)
     {
-        if (m_Players.ContainsKey(userId))
+        if (m_Players.TryGetValue(nicknameData.userId, out var pc))
         {
-            Debug.LogWarning($"Player {userId} is already exist");
+            pc.SetNickname(nicknameData.nickname);
+        }
+    }
+
+    void SpawnPlayer(LobbyPlayerData player, bool isOwner)
+    {
+        if (m_Players.ContainsKey(player.userId))
+        {
+            Debug.LogWarning($"Player {player.userId} is already exist");
             return;
         }
 
-        var player = Instantiate(m_PlayerPrefab, position, Quaternion.identity);
-        var pc = player.GetComponent<PlayerController>();
-        pc.UserId = userId;
+        var playerObject = Instantiate(m_PlayerPrefab, new Vector3(player.position.x, player.position.y), Quaternion.identity);
+        var pc = playerObject.GetComponent<PlayerController>();
+        pc.UserId = player.userId;
         pc.IsOwner = isOwner;
-        pc.SetSkinIndex(skinIndex);
+        pc.SetSkinIndex(player.skinIndex);
+        pc.Nickname = player.nickname;
 
         if (pc.IsOwner)
         {
             pc.OnMoved += m_LobbyService.EmitPlayerMove;
             pc.OnSkinChanged += m_LobbyService.EmitPlayerSkin;
+            pc.OnNicknameChanged += m_LobbyService.EmitPlayerNickname;
         }
 
-        m_Players.Add(userId, pc);
+        m_Players.Add(player.userId, pc);
     }
 
     void RemovePlayer(string userId)
@@ -103,6 +114,7 @@ public class LobbyManager : MonoBehaviour
             {
                 pc.OnMoved -= m_LobbyService.EmitPlayerMove;
                 pc.OnSkinChanged -= m_LobbyService.EmitPlayerSkin;
+                pc.OnNicknameChanged -= m_LobbyService.EmitPlayerNickname;
             }
             Destroy(pc.gameObject);
             m_Players.Remove(userId);
@@ -117,6 +129,10 @@ public class LobbyManager : MonoBehaviour
             m_LobbyService.OnPlayerMoved -= OnPlayerMoved;
             m_LobbyService.OnPlayerJoined -= OnPlayerJoined;
             m_LobbyService.OnPlayerLeft -= OnPlayerLeft;
+            m_LobbyService.OnPlayerSkin -= OnPlayerSkin;
+            m_LobbyService.OnPlayerConnected -= HandlePlayerConnected;
+            m_LobbyService.OnPlayerNickname -= OnPlayerNickname;
+
             m_LobbyService.Disconnect();
         }
     }

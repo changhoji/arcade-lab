@@ -14,3 +14,8 @@ export interface PlayerSkinData {
     userId: string;
     skinIndex: number;
 }
+
+export interface PlayerNicknameData {
+    userId: string;
+    nickname: string;
+}

@@ -2,7 +2,7 @@ import { Namespace } from "socket.io";
 import { LobbyManager } from "../managers/lobbyManager";
 import { PlayerManager } from "../managers/playerManager";
 import { Position } from "../types/common";
-import { PlayerMoveData, PlayerSkinData } from "../types/lobby";
+import { PlayerMoveData, PlayerNicknameData, PlayerSkinData } from "../types/lobby";
 
 export function setupLobbyNamespace(namespace: Namespace, playerManager: PlayerManager, lobbyManager: LobbyManager) {
     namespace.on("connection", (socket) => {
@@ -16,6 +16,7 @@ export function setupLobbyNamespace(namespace: Namespace, playerManager: PlayerM
         const player = lobbyManager.addPlayer(userId);
         const otherPlayers = lobbyManager.getOtherPlayers(userId);
 
+        socket.emit("player:connect", player);
         socket.emit("player:others", otherPlayers);
         socket.broadcast.emit("player:join", player);
 
@@ -38,6 +39,16 @@ export function setupLobbyNamespace(namespace: Namespace, playerManager: PlayerM
                 socket.broadcast.emit("player:skin", skinData)
             }
         });
+
+        socket.on("player:nickname", (nickname: string) => {
+            if (lobbyManager.updateNickname(userId, nickname)) {
+                const nicknameData: PlayerNicknameData = {
+                    userId,
+                    nickname
+                };
+                socket.broadcast.emit("player:nickname", nicknameData);
+            }
+        })
 
         socket.on("disconnect", () => {
             console.log("player disconnected from lobby");
