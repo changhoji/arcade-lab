@@ -4,6 +4,7 @@ public class LobbyUIManager : MonoBehaviour
 {
     [SerializeField] Canvas m_LobbyCanvas;
     [SerializeField] WardrobePanel m_WardrobePanel;
+    [SerializeField] RoomListPanel m_RoomListPanel;
 
     public void ShowWardrobePanel(PlayerController player)
     {
@@ -12,6 +13,14 @@ public class LobbyUIManager : MonoBehaviour
 
     public void HideWardrobePanel()
     {
-        m_WardrobePanel?.Hide();
+        if (m_WardrobePanel)
+        {
+            m_WardrobePanel.Hide();
+        }
+    }
+
+    public void ShowRoomListPanel(string gameId)
+    {
+        m_RoomListPanel.Show(gameId);
     }
 }

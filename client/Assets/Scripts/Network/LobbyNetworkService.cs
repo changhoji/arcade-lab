@@ -9,6 +9,7 @@ using VContainer;
 
 public class LobbyNetworkService : INetworkService
 {
+    #region Player Events
     public event Action<LobbyPlayerData> OnPlayerConnected;
     public event Action<LobbyPlayerData[]> OnOtherPlayersReceived;
     public event Action<PlayerMoveData> OnPlayerMoved;
@@ -16,10 +17,15 @@ public class LobbyNetworkService : INetworkService
     public event Action<string> OnPlayerLeft;
     public event Action<PlayerSkinData> OnPlayerSkin;
     public event Action<PlayerNicknameData> OnPlayerNickname;
+    #endregion
+
+    #region Room Events
+    public event Action<RoomData> OnRoomCreated;
+    public event Action<string> OnRoomDeleted;
+    #endregion
 
     [Inject] AuthManager m_AuthManager;
     SocketIOUnity m_LobbySocket;
-
 
     public void Initialize()
     {
@@ -35,6 +41,22 @@ public class LobbyNetworkService : INetworkService
     }
 
     public void RegisterEventListeners()
+    {
+        RegisterPlayerEventListeners();
+        RegisterRoomEventListeners();
+    }
+
+    public async Task ConnectAsync()
+    {
+        await m_LobbySocket.ConnectAsync();
+    }
+
+    public void Disconnect()
+    {
+        m_LobbySocket.Disconnect();
+    }
+
+    void RegisterPlayerEventListeners()
     {
         m_LobbySocket.OnUnityThread("player:connect", response =>
         {
@@ -82,15 +104,15 @@ public class LobbyNetworkService : INetworkService
         });
     }
 
-    public async Task ConnectAsync()
+    void RegisterRoomEventListeners()
     {
-        await m_LobbySocket.ConnectAsync();
+        m_LobbySocket.OnUnityThread("room:create", response =>
+        {
+            var roomData = response.GetValue<RoomData>();
+            OnRoomCreated?.Invoke(roomData);
+        });
     }
 
-    public void Disconnect()
-    {
-        m_LobbySocket.Disconnect();
-    }
 
     public void EmitPlayerMove(Position position)
     {
@@ -105,5 +127,10 @@ public class LobbyNetworkService : INetworkService
     public void EmitPlayerNickname(string nickname)
     {
         m_LobbySocket.Emit("player:nickname", nickname);
+    }
+
+    public void EmitCreateRoom(string gameId, string roomName, int maxPlayers)
+    {
+        m_LobbySocket.Emit("room:create", new CreateRoomRequest(gameId, roomName, maxPlayers));
     }
 }

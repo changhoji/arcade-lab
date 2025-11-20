@@ -9,11 +9,9 @@ using VContainer;
 public class LobbyManager : MonoBehaviour
 {
     [SerializeField] GameObject m_PlayerPrefab;
-    [Inject] AuthManager m_AuthManager;
 
     LobbyNetworkService m_LobbyService;
     Dictionary<string, PlayerController> m_Players = new();
-
 
     [Inject]
     public void Construct(LobbyNetworkService lobbyService)

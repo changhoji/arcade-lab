@@ -5,6 +5,7 @@ export class LobbyManager {
     private lobbyPlayers = new Map<string, LobbyPlayerData>();
     private nextKey = 0;
 
+    //#region Player Methods
     addPlayer(userId: string): LobbyPlayerData {
         const player: LobbyPlayerData = {
             userId,
@@ -51,4 +52,9 @@ export class LobbyManager {
     getOtherPlayers(userId: string) {
         return Array.from(this.lobbyPlayers.values()).filter(p => p.userId !== userId);
     }
+    //#endregion
+
+    //#region Room Methods
+    
+    //#endregion
 }

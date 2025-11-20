@@ -7,6 +7,8 @@ public class MainLobbyLifetimeScope : LifetimeScope
     {
         builder.RegisterComponentInHierarchy<LobbyManager>();
         builder.RegisterComponentInHierarchy<LobbyUIManager>();
+        builder.RegisterComponentInHierarchy<RoomManager>();
+        builder.RegisterComponentInHierarchy<RoomListPanel>();
         builder.Register<LobbyNetworkService>(Lifetime.Singleton)
             .AsImplementedInterfaces()
             .AsSelf();
