@@ -8,6 +8,7 @@ using VContainer;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController LocalPlayer { get; private set; }
     public event Action<Position> OnMoved;
     public event Action<int> OnSkinChanged;
     public event Action<string> OnNicknameChanged;
@@ -73,6 +74,10 @@ public class PlayerController : MonoBehaviour
         if (!IsOwner)
         {
             m_Rigidbody.bodyType = RigidbodyType2D.Kinematic;
+        }
+        else
+        {
+            LocalPlayer = this;
         }
         m_NicknameText.text = Nickname;
     }

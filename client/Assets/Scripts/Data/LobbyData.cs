@@ -1,7 +1,7 @@
 namespace ArcadeLab.Data
 {
     #region Player Datas
-    public class LobbyPlayerData : PlayerBase
+    public class LobbyPlayerData : PlayerBaseData
     {
         public Position position;
     }
@@ -36,21 +36,14 @@ namespace ArcadeLab.Data
         public int maxPlayers;
     }
 
-    public class RoomPlayerData : PlayerBase
+    public class RoomPlayerData : PlayerBaseData
     {
         public bool isReady;
         public bool isHost;
     }
 
-    public class CreateRoomRequest
+    public class RoomCreateData
     {
-        public CreateRoomRequest(string gameId, string roomName, int maxPlayers)
-        {
-            this.gameId = gameId;
-            this.roomName = roomName;
-            this.maxPlayers = maxPlayers;
-        }
-
         public string gameId;
         public string roomName;
         public int maxPlayers;

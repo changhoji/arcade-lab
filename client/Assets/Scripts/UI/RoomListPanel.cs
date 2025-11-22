@@ -3,54 +3,59 @@ using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
 
-public class RoomListPanel : MonoBehaviour
+public class RoomListPanel : UIPanelBase
 {
     [SerializeField] GameObject m_RoomItemPrefab;
     [SerializeField] Button m_CreateRoomButton;
     [SerializeField] Transform m_ScrollContent;
     RoomManager m_RoomManager;
-    LobbyNetworkService m_LobbyService;
     List<RoomItem> m_RoomItems;
+    GameConfig m_GameConfig;
 
     
     [Inject]
-    public void Construct(RoomManager roomManager, LobbyNetworkService lobbyService)
+    public void Construct(RoomManager roomManager)
     {
         m_RoomManager = roomManager;
-        m_LobbyService = lobbyService;
         m_RoomItems = new();
     }
 
     void Start()
     {
         m_CreateRoomButton.onClick.AddListener(OnCreateRoomClicked);
-        // gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
-    public void Show(string gameId)
+    public void SetGameConfig(GameConfig config)
     {
-        var rooms = m_RoomManager.GetRoomDatas(gameId);
+        m_GameConfig = config;
+    }
+
+    public override void Show()
+    {
+        base.Show();
+
+        var rooms = m_RoomManager.GetRoomDatas(m_GameConfig.gameId);
         for (int i = 0; i < rooms.Length; i++)
         {
             var roomItem = Instantiate(
                 m_RoomItemPrefab,
                 m_ScrollContent
             ).GetComponent<RoomItem>();
-            // roomItem.transform.local = new Vector3(0, -400 + 200*i, 0);
             roomItem.Initialize(rooms[i]);
             m_RoomItems.Add(roomItem);
         }
-        gameObject.SetActive(true);
     }
 
-    public void Hide()
+    public override void Hide()
     {
         foreach (var roomItem in m_RoomItems)
         {
             Destroy(roomItem.gameObject);
         }
         m_RoomItems.Clear();
-        gameObject.SetActive(false);
+
+        base.Hide();
     }
 
     void OnCreateRoomClicked()

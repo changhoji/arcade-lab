@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 1052390937150587538}
   - component: {fileID: 5589697077257269354}
   - component: {fileID: 831003057792148497}
-  - component: {fileID: 6937666784577205817}
+  - component: {fileID: 9183219629569178930}
   m_Layer: 0
-  m_Name: Wardrobe
+  m_Name: GamePortal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -135,7 +135,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 9.18, y: 5.15}
   m_EdgeRadius: 0
---- !u!114 &6937666784577205817
+--- !u!114 &9183219629569178930
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -144,7 +144,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 6415998277350653759}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2b078982d36549a9822390e84bcd131, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f220f9c8fb9044dab65f7744a3f3da8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_KeyCode: 102
+  m_GameConfig: {fileID: 0}

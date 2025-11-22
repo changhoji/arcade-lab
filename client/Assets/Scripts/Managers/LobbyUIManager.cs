@@ -6,9 +6,9 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] WardrobePanel m_WardrobePanel;
     [SerializeField] RoomListPanel m_RoomListPanel;
 
-    public void ShowWardrobePanel(PlayerController player)
+    public void ShowWardrobePanel()
     {
-        m_WardrobePanel.Show(player);
+        m_WardrobePanel.Show();
     }
 
     public void HideWardrobePanel()
@@ -19,8 +19,9 @@ public class LobbyUIManager : MonoBehaviour
         }
     }
 
-    public void ShowRoomListPanel(string gameId)
+    public void ShowRoomListPanel(GameConfig config)
     {
-        m_RoomListPanel.Show(gameId);
+        m_RoomListPanel.SetGameConfig(config);
+        m_RoomListPanel.Show();
     }
 }

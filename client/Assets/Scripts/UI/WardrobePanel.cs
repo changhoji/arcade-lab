@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WardrobePanel : MonoBehaviour
+public class WardrobePanel : UIPanelBase
 {
     const int k_NumberOfSkin = 4;
     [SerializeField] PlayerLibrary m_PlayerLibrary;
@@ -10,7 +10,6 @@ public class WardrobePanel : MonoBehaviour
     [SerializeField] TMP_InputField m_NicknameInput;
     int m_SelectedIndex = 0;
     int m_PreviousIndex = 0;
-    PlayerController m_Player;
 
     void Start()
     {
@@ -24,8 +23,10 @@ public class WardrobePanel : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    void Update()
+    protected override void Update()
     {
+        base.Update();
+
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
             m_SelectedIndex = (m_SelectedIndex + k_NumberOfSkin - 1) % k_NumberOfSkin;
@@ -37,40 +38,15 @@ public class WardrobePanel : MonoBehaviour
 
         if (m_SelectedIndex != m_PreviousIndex)
         {
-            if (m_Player)
-            {
-                m_Player.SetSkinIndex(m_SelectedIndex);
-            }
+            PlayerController.LocalPlayer.SetSkinIndex(m_SelectedIndex);
             m_Images[m_PreviousIndex].color = Color.grey;
             m_Images[m_SelectedIndex].color = Color.white;
             m_PreviousIndex = m_SelectedIndex;
-        }
-        
-    }
-
-    public void Show(PlayerController player)
-    {
-        m_Player = player;
-        m_Player.SetIsMovable(false);
-        gameObject.SetActive(true);
-    }
-
-    public void Hide()
-    {
-        if (m_Player)
-        {
-            m_Player.SetIsMovable(true);
-            m_Player = null;
-        }
-        gameObject.SetActive(false);
+        }   
     }
 
     public void ChangeNickname(string nickname)
     {
-        Debug.Log($"value = {nickname}");
-        if (m_Player)
-        {
-            m_Player.SetNickname(nickname);
-        }
+        PlayerController.LocalPlayer.SetNickname(nickname);
     }
 }

@@ -131,6 +131,10 @@ public class LobbyNetworkService : INetworkService
 
     public void EmitCreateRoom(string gameId, string roomName, int maxPlayers)
     {
-        m_LobbySocket.Emit("room:create", new CreateRoomRequest(gameId, roomName, maxPlayers));
+        var request = new RoomCreateData();
+        request.gameId = gameId;
+        request.roomName = roomName;
+        request.maxPlayers = maxPlayers;
+        m_LobbySocket.Emit("room:create", request);
     }
 }

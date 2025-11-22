@@ -15,7 +15,7 @@ namespace ArcadeLab.Data
         public float y;
     }
 
-    public class PlayerBase
+    public class PlayerBaseData
     {
         public string userId;
         public int skinIndex;
