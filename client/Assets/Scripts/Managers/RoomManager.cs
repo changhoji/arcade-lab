@@ -33,8 +33,8 @@ public class RoomManager : MonoBehaviour
 
     void HandleRoomCreated(RoomData roomData)
     {
+        Debug.Log("add room");
         m_Rooms.Add(roomData.roomId, roomData);
-        m_LobbyUIManager.ShowRoomListPanel(roomData.gameId);
     }
 
     void HandleRoomDeleted(string roomId)

@@ -60,6 +60,6 @@ public class RoomListPanel : UIPanelBase
 
     void OnCreateRoomClicked()
     {
-        m_RoomManager.CreateRoom("color-lab", "new room", 2);
+        m_RoomManager.CreateRoom(m_GameConfig.gameId, "new room", 2);
     }
 }
