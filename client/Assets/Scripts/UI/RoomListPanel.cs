@@ -42,7 +42,7 @@ public class RoomListPanel : UIPanelBase
                 m_RoomItemPrefab,
                 m_ScrollContent
             ).GetComponent<RoomItem>();
-            roomItem.Initialize(rooms[i]);
+            roomItem.Initialize(rooms[i], m_GameConfig);
             m_RoomItems.Add(roomItem);
         }
     }

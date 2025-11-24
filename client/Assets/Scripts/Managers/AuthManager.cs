@@ -1,4 +1,6 @@
+using System;
 using System.Threading.Tasks;
+using ArcadeLab.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer;
@@ -6,36 +8,61 @@ using VContainer;
 public class AuthManager : MonoBehaviour
 {
     public string UserId { get; private set; } = null;
+    public bool IsAuthenticated => !string.IsNullOrEmpty(UserId);
 
     AuthNetworkSerivice m_AuthSerivce;
+    PlayerBaseManager m_PlayerManager;
 
     [Inject]
-    public void Construct(AuthNetworkSerivice authService)
+    public void Construct(AuthNetworkSerivice authService, PlayerBaseManager playerManager)
     {
         m_AuthSerivce = authService;
-        m_AuthSerivce.OnSignInSuccess += OnSignInSuccess;
+        m_PlayerManager = playerManager;
+
+        m_AuthSerivce.OnSignInSuccess += HandleSignInSuccess;
         DontDestroyOnLoad(gameObject);
     }
 
     async void Start()
     {
-        await m_AuthSerivce.ConnectAsync();
+        if (m_AuthSerivce != null)
+        {
+            await m_AuthSerivce.ConnectAsync();
+        }
     }
-    
+
+    void OnDestroy()
+    {
+        if (m_AuthSerivce != null)
+        {
+            m_AuthSerivce.OnSignInSuccess -= HandleSignInSuccess;
+        }
+    }
+
     public async Task SignInAnonymously()
     {
         await m_AuthSerivce.SignInAnonymously();
     }
 
-    void OnDestroy()
+    public async Task SignInWithEmail(string email, string password)
     {
-        m_AuthSerivce.OnSignInSuccess -= OnSignInSuccess;
+        throw new NotImplementedException();
     }
 
-    void OnSignInSuccess(string userId)
+    public void SignOut()
     {
-        Debug.Log("OnSignInSuccess");
-        UserId = userId;
+        if (IsAuthenticated)
+        {
+            UserId = null;
+            m_AuthSerivce.Disconnect();
+            SceneManager.LoadScene("MainMenu");
+        }
+    } 
+
+    void HandleSignInSuccess(PlayerBaseData player)
+    {
+        m_PlayerManager.AddPlayer(player);
+
         SceneManager.LoadScene("Lobby");
     }
 }

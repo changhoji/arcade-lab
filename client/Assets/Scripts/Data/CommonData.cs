@@ -18,7 +18,7 @@ namespace ArcadeLab.Data
     public class PlayerBaseData
     {
         public string userId;
-        public int skinIndex;
         public string nickname;
+        public int skinIndex;
     }
 }

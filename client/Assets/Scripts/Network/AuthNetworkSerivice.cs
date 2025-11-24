@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using ArcadeLab.Data;
 using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
 using UnityEngine;
@@ -7,7 +8,7 @@ using VContainer.Unity;
 
 public class AuthNetworkSerivice : INetworkService
 {
-    public event Action<string> OnSignInSuccess;
+    public event Action<PlayerBaseData> OnSignInSuccess;
 
     SocketIOUnity m_AuthSocket;
 
@@ -23,7 +24,7 @@ public class AuthNetworkSerivice : INetworkService
         m_AuthSocket.OnUnityThread("signin:success", response =>
         {
             var userId = response.GetValue<string>(0);
-            OnSignInSuccess?.Invoke(userId);    
+            // OnSignInSuccess?.Invoke()   
         });
     }
 
