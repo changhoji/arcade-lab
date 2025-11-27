@@ -1,7 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using VContainer.Unity;
 
-public interface INetworkService : IInitializable
+public interface INetworkService : IInitializable, IDisposable
 {
     public void RegisterEventListeners();
 

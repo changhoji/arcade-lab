@@ -21,7 +21,7 @@ public class LobbyUIManager : MonoBehaviour
 
     public void ShowRoomListPanel(GameConfig config)
     {
-        m_RoomListPanel.SetGameConfig(config);
+        // m_RoomListPanel.SetGameConfig(config);
         m_RoomListPanel.Show();
     }
 }

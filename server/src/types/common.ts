@@ -3,8 +3,8 @@ export interface Position {
     y: number;
 }
 
-export interface PlayerBase {
+export interface Player {
     userId: string;
-    skinIndex: number;
     nickname: string;
+    skinIndex: number;
 }

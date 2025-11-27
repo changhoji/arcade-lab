@@ -10,6 +10,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Let the user copy and paste the code themselves
 - You may read files to understand the codebase, but do not use Edit or Write tools
 
+**Exception:** When the user explicitly and directly requests you to modify a file (e.g., "너가 수정해줘", "add this to the file"), you should:
+- Use Edit or Write tools to make the changes
+- Verify the changes are appropriate and well-formed
+- Suggest improvements if the requested change seems problematic
+
 ## Project Overview
 
 ArcadeLab is a multiplayer 2D Unity game featuring a central lobby where players can customize characters and join various arcade game rooms. The client is built with Unity 2022.3+ using C# and communicates with a Node.js backend via Socket.IO for real-time multiplayer functionality.
@@ -190,6 +195,19 @@ Data classes are serializable POCOs matching server-side schemas exactly.
 2. Inject required dependencies via constructor with `[Inject]` attribute
 3. Register as Component in appropriate LifetimeScope
 4. Subscribe to relevant network events in Start/initialization
+
+## Communication Guidelines
+
+When providing technical assistance:
+- **Provide ONE recommended solution with full code implementation**
+- **Briefly mention alternative approaches** without detailed code
+- Focus on the most practical and maintainable solution
+- Explain trade-offs only when the recommended approach has significant limitations
+
+Example response structure:
+1. Recommended approach (with complete code)
+2. Brief mentions of alternatives (1-2 sentences each)
+3. Why the recommended approach is preferred
 
 ## Important Notes
 

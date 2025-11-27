@@ -5,14 +5,14 @@ using VContainer.Unity;
 
 public class ApplicationLifetimeScope : LifetimeScope
 {
-    [SerializeField] AuthManager m_AuthManager;
-
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.RegisterComponent(m_AuthManager);
-        builder.Register<AuthNetworkSerivice>(Lifetime.Singleton)
-            .AsImplementedInterfaces()
-            .AsSelf();
+        builder.Register<AuthNetworkService>(Lifetime.Singleton)
+            .AsImplementedInterfaces().AsSelf();
+        builder.Register<LobbyNetworkService>(Lifetime.Singleton)
+            .AsImplementedInterfaces().AsSelf();
+
+        builder.RegisterComponentInHierarchy<AuthManager>();
     }
 
     protected override void Awake()

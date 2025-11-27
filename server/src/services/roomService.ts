@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { CreateRoomRequest, RoomData } from '../types/lobby';
-export class RoomManager {
+export class RoomService {
     private rooms = new Map<string, RoomData>();
 
     createRoom(hostUserId: string, createRequest: CreateRoomRequest): RoomData {
@@ -19,5 +19,9 @@ export class RoomManager {
 
     removeRoom(roomId: string) {
         this.rooms.delete(roomId);
+    }
+
+    joinRoom(roomId: string, userId: string) {
+        // this.rooms.get(roomId).
     }
 }

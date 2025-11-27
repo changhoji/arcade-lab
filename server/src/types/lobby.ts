@@ -1,7 +1,7 @@
-import { PlayerBase, Position } from './common';
+import { Position } from './common';
 
 //#region Player Types
-export interface LobbyPlayerData extends PlayerBase {
+export interface LobbyPlayer {
     position: Position;
 }
 
@@ -21,6 +21,12 @@ export interface PlayerNicknameData {
 }
 //#endregion
 
+export interface Lobby {
+    lobbyId: string;
+    name: string;
+    currentPlayers: number;
+}
+
 //#region Room Types
 export interface RoomData {
     roomId: string;
@@ -31,7 +37,7 @@ export interface RoomData {
     maxPlayers: number;
 }
 
-export interface RoomPlayerData extends PlayerBase {
+export interface RoomPlayerData {
     isReady: boolean;
     isHost: boolean;
 }
@@ -42,4 +48,3 @@ export interface CreateRoomRequest {
     maxPlayers: number;
 }
 //#endregion
-

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ArcadeLab.Data;
 using UnityEngine;
@@ -9,42 +10,41 @@ public class AuthManager : MonoBehaviour
 {
     public string UserId { get; private set; } = null;
     public bool IsAuthenticated => !string.IsNullOrEmpty(UserId);
+    public PlayerBaseData Player { get; private set; }
 
-    AuthNetworkSerivice m_AuthSerivce;
-    PlayerBaseManager m_PlayerManager;
+    public event Action OnSignInSuccess;
 
-    [Inject]
-    public void Construct(AuthNetworkSerivice authService, PlayerBaseManager playerManager)
+    [Inject] AuthNetworkService m_AuthService;
+
+    void Awake()
     {
-        m_AuthSerivce = authService;
-        m_PlayerManager = playerManager;
-
-        m_AuthSerivce.OnSignInSuccess += HandleSignInSuccess;
         DontDestroyOnLoad(gameObject);
     }
 
     async void Start()
     {
-        if (m_AuthSerivce != null)
+        if (m_AuthService != null)
         {
-            await m_AuthSerivce.ConnectAsync();
+            m_AuthService.OnSignInResponse += HandleSignInResponse;
+            await m_AuthService.ConnectAsync();
         }
     }
 
     void OnDestroy()
     {
-        if (m_AuthSerivce != null)
+        if (m_AuthService != null)
         {
-            m_AuthSerivce.OnSignInSuccess -= HandleSignInSuccess;
+            m_AuthService.OnSignInResponse -= HandleSignInResponse;
+            m_AuthService.Disconnect();
         }
     }
 
-    public async Task SignInAnonymously()
+    public void SignInAnonymously()
     {
-        await m_AuthSerivce.SignInAnonymously();
+        m_AuthService.SignInAnonymously();
     }
 
-    public async Task SignInWithEmail(string email, string password)
+    public void SignInWithEmail(string email, string password)
     {
         throw new NotImplementedException();
     }
@@ -54,15 +54,22 @@ public class AuthManager : MonoBehaviour
         if (IsAuthenticated)
         {
             UserId = null;
-            m_AuthSerivce.Disconnect();
             SceneManager.LoadScene("MainMenu");
         }
     } 
 
-    void HandleSignInSuccess(PlayerBaseData player)
+    void HandleSignInResponse(PlayerBaseData playerData)
     {
-        m_PlayerManager.AddPlayer(player);
-
-        SceneManager.LoadScene("Lobby");
+        if (playerData != null)
+        {
+            UserId = playerData.userId;
+            Player = playerData;
+            Debug.Log("signin success");
+            OnSignInSuccess?.Invoke();
+        }
+        else
+        {
+            Debug.LogWarning("signin failed");
+        }
     }
 }

@@ -6,8 +6,8 @@ public class MainMenuUI : MonoBehaviour
 {
     [Inject] AuthManager m_AuthManager;
 
-    public async void OnClickGuest()
+    public void OnClickGuest()
     {
-        await m_AuthManager.SignInAnonymously();
+        m_AuthManager.SignInAnonymously();
     }
 }

@@ -1,32 +1,29 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using ArcadeLab.Data;
-using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
 using UnityEngine;
-using VContainer.Unity;
 
-public class AuthNetworkSerivice : INetworkService
+public class AuthNetworkService : INetworkService
 {
-    public event Action<PlayerBaseData> OnSignInSuccess;
+    public event Action<PlayerBaseData> OnSignInResponse;
 
     SocketIOUnity m_AuthSocket;
 
     public void Initialize()
     {
-        m_AuthSocket = new SocketIOUnity("http://localhost:3000");
+        m_AuthSocket = new SocketIOUnity("http://localhost:3000/auth");
         m_AuthSocket.JsonSerializer = new NewtonsoftJsonSerializer();
         RegisterEventListeners();
     }
 
-    public void RegisterEventListeners()
+    public void Dispose()
     {
-        m_AuthSocket.OnUnityThread("signin:success", response =>
-        {
-            var userId = response.GetValue<string>(0);
-            // OnSignInSuccess?.Invoke()   
-        });
+        Disconnect();
     }
+
+    public void RegisterEventListeners() {}
 
     public async Task ConnectAsync()
     {
@@ -38,12 +35,19 @@ public class AuthNetworkSerivice : INetworkService
         m_AuthSocket.Disconnect();
     }
 
-    public async Task SignInAnonymously()
+    public void SignInAnonymously()
     {
         if (!m_AuthSocket.Connected)
         {
             Debug.LogWarning("Not connected to server yet");
+            return;
         }
-        await m_AuthSocket.EmitAsync("signin:guest");
+
+        var context = SynchronizationContext.Current;
+        m_AuthSocket.Emit("auth:guest", (response) =>
+        {
+            var playerData = response.GetValue<PlayerBaseData>(0);
+            context.Post(_ => OnSignInResponse?.Invoke(playerData), null);
+        });
     }
 }

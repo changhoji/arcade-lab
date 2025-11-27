@@ -25,6 +25,13 @@ namespace ArcadeLab.Data
     }
     #endregion
 
+    public class LobbyData
+    {
+        public string lobbyId;
+        public string name;
+        public int currentPlayers;
+    }
+
     #region Room Datas
     public class RoomData
     {

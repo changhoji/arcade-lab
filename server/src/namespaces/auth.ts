@@ -1,13 +1,30 @@
-import { Server } from "socket.io";
-import { v4 as uuidv4 } from 'uuid';
-import { PlayerManager } from "../managers/playerManager";
+import { Namespace } from "socket.io";
+import { AuthService } from "../services/authService";
+import { ServerService } from '../services/serverService';
+import { Player } from "../types/common";
+import { generateId } from "../utils/idGenerator";
 
-export function SetupAuthNamespace(io: Server, playerManager: PlayerManager) {
+export function setupAuthNamespace(
+    io: Namespace,
+    serverService: ServerService,
+    authService: AuthService
+) {
     io.on("connection", (socket) => {
-        socket.on("signin:guest", () => {
-            const userId = uuidv4();
-            socket.emit("signin:success", userId);
+        // guest signin request
+        socket.on("auth:guest", (callback: (player: Player) => void) => {
+            const userId = generateId();
+            const player = authService.addPlayer(socket.id, userId);
+            callback(player);
             console.log(`Guest signin: ${userId}`);
+        })
+
+        // client disconnected
+        socket.on("disconnect", () => {
+            const userId = authService.getUserIdBySocket(socket.id);
+            if (userId) {
+                authService.removePlayer(userId);
+            }
+            console.log(`player ${userId} disconnected from auth`);
         })
     })
 }
