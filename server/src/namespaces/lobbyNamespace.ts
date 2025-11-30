@@ -15,10 +15,10 @@ export class LobbyNamespace {
         private authService: AuthService,
     ) {
         this.namespace = io.of("/lobby");
-        this.temp();
+        this.registerHandlers();
     }
 
-    temp() {
+    private registerHandlers() {
         this.namespace.on("connection", (socket) => {
             // get userId
             var userId: string = "";
@@ -65,11 +65,11 @@ export class LobbyNamespace {
                 }
             });
 
-            socket.on("player:moved", (position: Position) => {
+            socket.on("player:changePosition", (position: Position) => {
                 if (lobbyService) {
                     if (lobbyService.updatePosition(userId, position)) {
                         console.log(`emit ${userId}`);
-                        socket.to(lobbyService.lobbyId).emit("player:moved",
+                        socket.to(lobbyService.lobbyId).emit("player:positionChanged",
                             userId,
                             position
                         );
@@ -77,10 +77,10 @@ export class LobbyNamespace {
                 }
             });
 
-            socket.on("player:moving", (isMoving: boolean) => {
+            socket.on("player:changeIsMoving", (isMoving: boolean) => {
                 if (lobbyService) {
                     if (lobbyService.updateIsMoving(userId, isMoving)) {
-                        socket.to(lobbyService.lobbyId).emit("player:moving",
+                        socket.to(lobbyService.lobbyId).emit("player:isMovingChanged",
                             userId,
                             isMoving
                         );
@@ -119,59 +119,4 @@ export class LobbyNamespace {
             })
         });
     }
-    
-
-        // // find lobby service
-        // const lobbyId = socket.nsp.name.split('/')[-1];
-        // const lobbyService = serverService.getLobby(lobbyId);
-        // if (!lobbyService) {
-        //     console.error("LobbyService not exist");
-        //     return;
-        // }
-
-        // const player = lobbyService.addLobbyPlayer(userId);
-        // const otherPlayers = lobbyService.getOtherPlayers(userId);
-
-        // socket.emit("player:connect", player);
-        // socket.emit("player:others", otherPlayers);
-        // socket.broadcast.emit("player:join", player);
-
-        // socket.on("player:move", (position: Position) => {
-        //     if (lobbyService.updatePosition(userId, position)) {
-        //         const moveData: PlayerMoveData = {
-        //             userId,
-        //             position
-        //         }
-        //         socket.broadcast.emit("player:move", moveData);
-        //     }
-        // });
-
-        // lobby create request
-        // socket.on("lobby:create", () => {
-        //     const lobbyId = generateId();
-        //     const lobby = serverService.createLobby(lobbyId);
-        //     if (lobby) {
-        //         socket.join(`/lobby/${lobbyId}`)
-
-        //         // callback with success
-                
-        //         // send lobby to others
-        //     } else {
-        //         // callback with fail
-        //     }
-        // })
-
-        // // lobby join request
-        // socket.on("lobby:join", (lobbyId: string) => {
-        //     const lobby = serverService.getLobby(lobbyId);
-        //     if (lobby) {
-        //         socket.join(`/lobby/${lobbyId}`)
-
-        //         // callback with success
-
-        //         // send joined to others
-        //     } else {
-        //         // callback with fail
-        //     }
-        // })
 }

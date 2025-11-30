@@ -33,8 +33,8 @@ public class LobbyNetworkService : INetworkService
 
     // lobby sync events
     public event Action<LobbyPlayerData[]> OnLobbyInitResponse;
-    public event Action<string, Position> OnPlayerMoved;
-    public event Action<string, bool> OnPlayerMoving;
+    public event Action<string, Position> OnPositionChanged;
+    public event Action<string, bool> OnIsMovingChanged;
     public event Action<LobbyPlayerData> OnPlayerJoined;
     public event Action<string> OnPlayerLeft;
     public event Action<string, int> OnSkinChanged;
@@ -67,20 +67,20 @@ public class LobbyNetworkService : INetworkService
 
     public void RegisterEventListeners()
     {
-        m_LobbySocket.OnUnityThread("player:moved", response =>
+        m_LobbySocket.OnUnityThread("player:positionChanged", response =>
         {
             var userId = response.GetValue<string>(0);
             var position = response.GetValue<Position>(1);
 
-            OnPlayerMoved?.Invoke(userId, position);
+            OnPositionChanged?.Invoke(userId, position);
         });
 
-        m_LobbySocket.OnUnityThread("player:moving", response =>
+        m_LobbySocket.OnUnityThread("player:isMovingChanged", response =>
         {
             var userId = response.GetValue<string>(0);
             var isMoving = response.GetValue<bool>(1);
 
-            OnPlayerMoving?.Invoke(userId, isMoving);
+            OnIsMovingChanged?.Invoke(userId, isMoving);
         });
 
         m_LobbySocket.OnUnityThread("player:joined", response =>
@@ -172,12 +172,12 @@ public class LobbyNetworkService : INetworkService
 
     public void EmitPlayerMoved(Position position)
     {
-        m_LobbySocket.Emit("player:moved", position);
+        m_LobbySocket.Emit("player:changePosition", position);
     }
 
     public void EmitPlayerMoving(bool value)
     {
-        m_LobbySocket.Emit("player:moving", value);
+        m_LobbySocket.Emit("player:changeIsMoving", value);
     }
 
     public void EmitPlayerSkinIndex(int skinIndex)

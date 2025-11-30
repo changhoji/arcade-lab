@@ -1,13 +1,11 @@
 using System;
 using ArcadeLab.Data;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public event Action<Position> OnChangePosiiton;
-    public event Action OnStartMoving;
-    public event Action OnStopMoving;
+    public event Action<Position> OnChangePosition;
+    public event Action<bool> OnChangeIsMoving;
 
     public bool IsMoving
     {
@@ -16,15 +14,7 @@ public class PlayerMovement : MonoBehaviour
         {
             m_IsMoving = value;
             m_Animator.SetBool("IsMoving", value);
-            Debug.Log(IsMoving);
-            if (value)
-            {
-                OnStartMoving?.Invoke();
-            }
-            else
-            {
-                OnStopMoving?.Invoke();
-            }
+            OnChangeIsMoving?.Invoke(value);
         }
     }
 
@@ -44,7 +34,7 @@ public class PlayerMovement : MonoBehaviour
     Vector2 m_MoveInput;
     bool m_IsMoving = false;
     bool m_IsMovable = true;
-    
+    float m_PreviousX = 0;
 
     public void Init(Position position, bool isMoving)
     {
@@ -66,6 +56,13 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (transform.position.x != m_PreviousX)
+        {
+            m_SpriteRenderer.flipX = transform.position.x < m_PreviousX;
+        }
+
+        m_PreviousX = transform.position.x;
+
         if (!m_PlayerBase.IsOwner || !IsMovable)
         {
             return;
@@ -75,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
         if (m_MoveInput != Vector2.zero)
         {
             if (!IsMoving) IsMoving = true;
-            OnChangePosiiton?.Invoke(new Position(transform));
+            OnChangePosition?.Invoke(new Position(transform));
             m_Animator.SetBool("IsMoving", true);
         }
         else
