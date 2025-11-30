@@ -1,7 +1,7 @@
-import express from "express";
-import { createServer } from "node:http";
-import { Server } from "socket.io";
-import { setupNameSpaces } from "./namespaces";
+import express from 'express';
+import { createServer } from 'node:http';
+import { Server } from 'socket.io';
+import { setupNameSpaces } from './namespaces';
 
 interface PlayerData {
   x: number;
@@ -18,9 +18,9 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
 });
 
 setupNameSpaces(io);
