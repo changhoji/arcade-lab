@@ -6,7 +6,6 @@ using ArcadeLab.Data;
 using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.UIElements;
 using VContainer;
 
 public class LobbyNetworkService : INetworkService
@@ -26,10 +25,19 @@ public class LobbyNetworkService : INetworkService
     // public event Action<RoomData> OnRoomCreated;
     // public event Action<string> OnRoomDeleted;
     // #endregion
+
+    // lobby browser events
     public event Action<LobbyData[]> OnLobbyListResponse;
     public event Action<string> OnCreateLobbyResponse;
     public event Action<string> OnJoinLobbyResponse;
 
+    // lobby sync events
+    public event Action<LobbyPlayerData[]> OnLobbyInitResponse;
+    public event Action<string, Position> OnPlayerMoved;
+    public event Action<string, bool> OnPlayerMoving;
+    public event Action<LobbyPlayerData> OnPlayerJoined;
+    public event Action<string> OnPlayerLeft;
+    public event Action<string, int> OnSkinChanged;
 
     [Inject] AuthManager m_AuthManager;
     SocketIOUnity m_LobbySocket;
@@ -58,6 +66,44 @@ public class LobbyNetworkService : INetworkService
 
     public void RegisterEventListeners()
     {
+        m_LobbySocket.OnUnityThread("player:moved", response =>
+        {
+            var userId = response.GetValue<string>(0);
+            var position = response.GetValue<Position>(1);
+
+            OnPlayerMoved?.Invoke(userId, position);
+        });
+
+        m_LobbySocket.OnUnityThread("player:moving", response =>
+        {
+            var userId = response.GetValue<string>(0);
+            var isMoving = response.GetValue<bool>(1);
+
+            OnPlayerMoving?.Invoke(userId, isMoving);
+        });
+
+        m_LobbySocket.OnUnityThread("player:joined", response =>
+        {
+            var player = response.GetValue<LobbyPlayerData>(0);
+
+            OnPlayerJoined?.Invoke(player);
+        });
+
+        m_LobbySocket.OnUnityThread("player:left", resposne =>
+        {
+            var userId = resposne.GetValue<string>(0);
+            
+            OnPlayerLeft?.Invoke(userId);
+        });
+
+        m_LobbySocket.OnUnityThread("player:skinChanged", response =>
+        {
+            var userId = response.GetValue<string>(0);
+            var skinIndex = response.GetValue<int>(1);
+
+            OnSkinChanged?.Invoke(userId, skinIndex);
+        });
+
         // RegisterPlayerEventListeners();
         // RegisterRoomEventListeners();
     }
@@ -103,6 +149,31 @@ public class LobbyNetworkService : INetworkService
             var lobbyId = response.GetValue<string>(0);
             context.Post(_ => OnJoinLobbyResponse?.Invoke(lobbyId), null);
         }, lobbyId);
+    }
+
+    public void RequestLobbyInit()
+    {
+        var context = SynchronizationContext.Current;
+        m_LobbySocket.Emit("lobby:init", (response) =>
+        {
+            var lobbyPlayers = response.GetValue<LobbyPlayerData[]>(0);
+            context.Post(_ => OnLobbyInitResponse?.Invoke(lobbyPlayers), null);
+        });
+    }
+
+    public void EmitPlayerMoved(Position position)
+    {
+        m_LobbySocket.Emit("player:moved", position);
+    }
+
+    public void EmitPlayerMoving(bool value)
+    {
+        m_LobbySocket.Emit("player:moving", value);
+    }
+
+    public void EmitPlayerSkinIndex(int skinIndex)
+    {
+        m_LobbySocket.Emit("player:changeSkin", skinIndex);
     }
 
     // void RegisterPlayerEventListeners()

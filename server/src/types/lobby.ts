@@ -1,9 +1,12 @@
-import { Position } from './common';
+import { PlayerState, Position } from './common';
 
 //#region Player Types
-export interface LobbyPlayer {
+export interface LobbyPlayerState {
     position: Position;
+    isMoving: boolean;
 }
+
+export type LobbyPlayerSnapshot = PlayerState & LobbyPlayerState;
 
 export interface PlayerMoveData {
     userId: string;

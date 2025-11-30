@@ -12,6 +12,7 @@ public class Wardrobe : InteractableBase
 
     protected override void Interact()
     {
+        Debug.Log("show wardrobe panel");
         m_LobbyUIManager.ShowWardrobePanel();
     }
 }

@@ -80,6 +80,7 @@ public class LobbyBrowserManager : MonoBehaviour
         }
         else
         {
+            PlayerPrefs.SetString("LobbyId", lobbyId);
             SceneManager.LoadScene("Lobby");
         }
     }
@@ -93,6 +94,7 @@ public class LobbyBrowserManager : MonoBehaviour
         }
         else
         {
+            PlayerPrefs.SetString("LobbyId", lobbyId);
             SceneManager.LoadScene("Lobby");
         }
     }

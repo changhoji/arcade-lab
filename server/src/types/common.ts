@@ -3,7 +3,7 @@ export interface Position {
     y: number;
 }
 
-export interface Player {
+export interface PlayerState {
     userId: string;
     nickname: string;
     skinIndex: number;

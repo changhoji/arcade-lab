@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using ArcadeLab.Data;
 using Unity.Collections;
@@ -8,130 +10,106 @@ using VContainer;
 
 public class LobbyManager : MonoBehaviour
 {
-    // [SerializeField] GameObject m_PlayerPrefab;
+    [SerializeField] GameObject m_PlayerPrefab;
 
-    // LobbyNetworkService m_LobbyService;
-    // Dictionary<string, PlayerController> m_Players = new();
+    [Inject] AuthManager m_AuthManager;
+    [Inject] LobbyNetworkService m_LobbyService;
+    Dictionary<string, PlayerBase> m_Players = new();
 
-    // [Inject]
-    // public void Construct(LobbyNetworkService lobbyService)
-    // {
-    //     m_LobbyService = lobbyService;
-    //     m_LobbyService.OnPlayerConnected += HandlePlayerConnected;
-    //     m_LobbyService.OnOtherPlayersReceived += OnOtherPlayersReceived;
-    //     m_LobbyService.OnPlayerMoved += OnPlayerMoved;
-    //     m_LobbyService.OnPlayerJoined += OnPlayerJoined;
-    //     m_LobbyService.OnPlayerLeft += OnPlayerLeft;
-    //     m_LobbyService.OnPlayerSkin += OnPlayerSkin;
-    //     m_LobbyService.OnPlayerNickname += OnPlayerNickname;
-    // }
+    public string LobbyId { get; private set; }
 
-    // async void Start()
-    // {
-    //     await m_LobbyService.ConnectAsync();
-    // }
+    void Start()
+    {
+        LobbyId = PlayerPrefs.GetString("LobbyId");
+        m_LobbyService.OnLobbyInitResponse += HandleLobbyInitResponse;
+        m_LobbyService.RequestLobbyInit();
+        m_LobbyService.OnPlayerMoved += HandlePlayerMoved;
+        m_LobbyService.OnPlayerMoving += HandlePlayerMoving;
+        m_LobbyService.OnPlayerJoined += HandlePlayerJoined;
+        m_LobbyService.OnPlayerLeft += HandlePlayerLeft;
+        m_LobbyService.OnSkinChanged += HandleSkinChanged;
+    }
 
-    // void HandlePlayerConnected(LobbyPlayerData player)
-    // {
-    //     SpawnPlayer(player, true);
-    // }
-    
-    // void OnOtherPlayersReceived(LobbyPlayerData[] players)
-    // {
-    //     Debug.Log($"PlayerManager.OnOtherPlayersReceived: {players}");
-    //     foreach (var player in players)
-    //     {
-    //         SpawnPlayer(player, false);
-    //     }
-    // }
+    void OnDestroy()
+    {
+        m_LobbyService.OnLobbyInitResponse -= HandleLobbyInitResponse;
+        m_LobbyService.OnPlayerMoved -= HandlePlayerMoved;
+        m_LobbyService.OnPlayerMoving -= HandlePlayerMoving;
+        m_LobbyService.OnPlayerJoined -= HandlePlayerJoined;
+        m_LobbyService.OnPlayerLeft -= HandlePlayerLeft;
+        m_LobbyService.OnSkinChanged -= HandleSkinChanged;
+    }
 
-    // void OnPlayerMoved(PlayerMoveData moveData)
-    // {
-    //     if (m_Players.TryGetValue(moveData.userId, out PlayerController pc))
-    //     {
-    //         pc.UpdateRemotePosition(moveData.position);
-    //     }
-    // }
+    void HandleLobbyInitResponse(LobbyPlayerData[] players)
+    {
+        Debug.Log($"players length = {players.Length}");
+        foreach (var player in players)
+        {
+            var playerObject = Instantiate(m_PlayerPrefab, new Vector3(player.position.x, player.position.y, 0), Quaternion.identity);
+            var isOwner = player.userId == m_AuthManager.UserId;
 
-    // void OnPlayerJoined(LobbyPlayerData player)
-    // {
-    //     SpawnPlayer(player, false);
-    // }
+            var playerBase = playerObject.GetComponent<PlayerBase>();
+            playerBase.Init(player.userId, player.nickname, player.skinIndex, isOwner);
 
-    // void OnPlayerLeft(string userId)
-    // {
-    //     RemovePlayer(userId);
-    // }
+            var playerMovement = playerObject.GetComponent<PlayerMovement>();
+            playerMovement.Init(player.position, player.isMoving);
+            if (isOwner)
+            {
+                playerBase.OnChangeSkin += (skinIndex) => { m_LobbyService.EmitPlayerSkinIndex(skinIndex); };
+                playerMovement.OnChangePosiiton += (position) => { m_LobbyService.EmitPlayerMoved(position); };
+                playerMovement.OnStartMoving += () => { m_LobbyService.EmitPlayerMoving(true); };
+                playerMovement.OnStopMoving += () => { m_LobbyService.EmitPlayerMoving(false); };
+            }
 
-    // void OnPlayerSkin(PlayerSkinData skinData)
-    // {
-    //     if (m_Players.TryGetValue(skinData.userId, out var pc))
-    //     {
-    //         pc.SetSkinIndex(skinData.skinIndex);
-    //     }
-    // }
+            m_Players.Add(player.userId, playerBase);
+        }
+    }
 
-    // void OnPlayerNickname(PlayerNicknameData nicknameData)
-    // {
-    //     if (m_Players.TryGetValue(nicknameData.userId, out var pc))
-    //     {
-    //         pc.SetNickname(nicknameData.nickname);
-    //     }
-    // }
+    void HandlePlayerMoved(string userId, Position position)
+    {
+        var player = m_Players[userId];
+        var playerMovement = player.GetComponent<PlayerMovement>();
+        playerMovement.SetPosition(position);
+    }
 
-    // void SpawnPlayer(LobbyPlayerData player, bool isOwner)
-    // {
-    //     if (m_Players.ContainsKey(player.userId))
-    //     {
-    //         Debug.LogWarning($"Player {player.userId} is already exist");
-    //         return;
-    //     }
+    void HandlePlayerMoving(string userId, bool isMoving)
+    {
+        Debug.Log("edit moving");
+        var player = m_Players[userId];
+        var playerMovement = player.GetComponent<PlayerMovement>();
+        playerMovement.IsMoving = isMoving;
+    }
 
-    //     var playerObject = Instantiate(m_PlayerPrefab, new Vector3(player.position.x, player.position.y), Quaternion.identity);
-    //     var pc = playerObject.GetComponent<PlayerController>();
-    //     pc.UserId = player.userId;
-    //     pc.IsOwner = isOwner;
-    //     pc.SetSkinIndex(player.skinIndex);
-    //     pc.Nickname = player.nickname;
+    void HandlePlayerJoined(LobbyPlayerData player)
+    {
+        var playerObject = Instantiate(m_PlayerPrefab, new Vector3(player.position.x, player.position.y, 0), Quaternion.identity);
+        var isOwner = player.userId == m_AuthManager.UserId;
 
-    //     if (pc.IsOwner)
-    //     {
-    //         pc.OnMoved += m_LobbyService.EmitPlayerMove;
-    //         pc.OnSkinChanged += m_LobbyService.EmitPlayerSkin;
-    //         pc.OnNicknameChanged += m_LobbyService.EmitPlayerNickname;
-    //     }
+        var playerBase = playerObject.GetComponent<PlayerBase>();
+        playerBase.Init(player.userId, player.nickname, player.skinIndex, isOwner);
 
-    //     m_Players.Add(player.userId, pc);
-    // }
+        var playerMovement = playerObject.GetComponent<PlayerMovement>();
+        playerMovement.Init(player.position, player.isMoving);
 
-    // void RemovePlayer(string userId)
-    // {
-    //     if (m_Players.TryGetValue(userId, out var pc))
-    //     {
-    //         if (pc.IsOwner)
-    //         {
-    //             pc.OnMoved -= m_LobbyService.EmitPlayerMove;
-    //             pc.OnSkinChanged -= m_LobbyService.EmitPlayerSkin;
-    //             pc.OnNicknameChanged -= m_LobbyService.EmitPlayerNickname;
-    //         }
-    //         Destroy(pc.gameObject);
-    //         m_Players.Remove(userId);
-    //     }
-    // }
+        m_Players.Add(player.userId, playerBase);
+    }
 
-    // void OnDestroy()
-    // {
-    //     if (m_LobbyService != null)
-    //     {
-    //         m_LobbyService.OnOtherPlayersReceived -= OnOtherPlayersReceived;
-    //         m_LobbyService.OnPlayerMoved -= OnPlayerMoved;
-    //         m_LobbyService.OnPlayerJoined -= OnPlayerJoined;
-    //         m_LobbyService.OnPlayerLeft -= OnPlayerLeft;
-    //         m_LobbyService.OnPlayerSkin -= OnPlayerSkin;
-    //         m_LobbyService.OnPlayerConnected -= HandlePlayerConnected;
-    //         m_LobbyService.OnPlayerNickname -= OnPlayerNickname;
+    void HandlePlayerLeft(string userId)
+    {
+        if (m_Players.ContainsKey(userId))
+        {
+            var player = m_Players[userId];
+            Destroy(player.gameObject);
+            m_Players.Remove(userId);
+        }
+    }
 
-    //         m_LobbyService.Disconnect();
-    //     }
-    // }
+    void HandleSkinChanged(string userId, int skinIndex)
+    {
+        if (m_Players.ContainsKey(userId))
+        {
+            var player = m_Players[userId];
+            player.SetSkinIndex(skinIndex);
+        }
+    }
 }

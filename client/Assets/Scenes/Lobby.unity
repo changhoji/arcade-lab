@@ -272,7 +272,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad076d40b64a41428f54f223bdb94ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PlayerPrefab: {fileID: 651829522923961937, guid: 9d2ebb07eb9fc46dabb49718dbb5bf56, type: 3}
+  m_PlayerPrefab: {fileID: 7809114184345769092, guid: 58b7a3cbd12574ee4bf60b3feaeb24a0, type: 3}
 --- !u!1 &102446213
 GameObject:
   m_ObjectHideFlags: 0
@@ -2220,7 +2220,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000008029487}
+  m_AnchoredPosition: {x: 0, y: 0.00002536849}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1777069666
@@ -2342,7 +2342,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 175391927}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.99999714
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2590,9 +2590,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc479b6e3305b4ed2b37b380d9420f1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RoomItemPrefab: {fileID: 8129023981789208614, guid: 012488afe5da54ffcbeb4a29d2f3dfbe, type: 3}
-  m_CreateRoomButton: {fileID: 1472053049}
-  m_ScrollContent: {fileID: 1714401323}
 --- !u!1001 &7980139199859934748
 PrefabInstance:
   m_ObjectHideFlags: 0

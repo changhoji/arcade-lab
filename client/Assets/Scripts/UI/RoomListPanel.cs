@@ -20,11 +20,11 @@ public class RoomListPanel : UIPanelBase
     //     m_RoomItems = new();
     // }
 
-    // void Start()
-    // {
-    //     m_CreateRoomButton.onClick.AddListener(OnCreateRoomClicked);
-    //     gameObject.SetActive(false);
-    // }
+    void Start()
+    {
+        // m_CreateRoomButton.onClick.AddListener(OnCreateRoomClicked);
+        gameObject.SetActive(false);
+    }
 
     // public void SetGameConfig(GameConfig config)
     // {

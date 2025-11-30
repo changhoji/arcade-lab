@@ -1,7 +1,7 @@
 import { Namespace } from "socket.io";
 import { AuthService } from "../services/authService";
 import { ServerService } from '../services/serverService';
-import { Player } from "../types/common";
+import { PlayerState } from "../types/common";
 import { generateId } from "../utils/idGenerator";
 
 export function setupAuthNamespace(
@@ -11,7 +11,7 @@ export function setupAuthNamespace(
 ) {
     io.on("connection", (socket) => {
         // guest signin request
-        socket.on("auth:guest", (callback: (player: Player) => void) => {
+        socket.on("auth:guest", (callback: (player: PlayerState) => void) => {
             const userId = generateId();
             const player = authService.addPlayer(socket.id, userId);
             callback(player);

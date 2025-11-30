@@ -1,33 +1,47 @@
 import { Position } from '../types/common';
-import { LobbyPlayer } from '../types/lobby';
+import { LobbyPlayerSnapshot, LobbyPlayerState } from '../types/lobby';
+import { AuthService } from './authService';
 
 export class LobbyService {
     public currentPlayers: number;
-    constructor(public lobbyId: string, public name: string) {
+    constructor(public authService: AuthService, public lobbyId: string, public name: string) {
         this.currentPlayers = 0;
     }
 
-    private lobbyPlayers = new Map<string, LobbyPlayer>();
+    private lobbyPlayers = new Map<string, LobbyPlayerState>();
     private nextKey = 0;
 
     joinLobby(userId: string) {
         this.currentPlayers++;
-        this.lobbyPlayers.set(userId, { position: { x: 0, y: 0 }});
+        this.lobbyPlayers.set(userId, { position: { x: 0, y: 0 }, isMoving: false });
     }
 
     leaveLobby(userId: string) {
         this.currentPlayers--;
+        this.lobbyPlayers.delete(userId);
+    }
+
+    getPlayerSnapshots(): LobbyPlayerSnapshot[] {
+        const result: LobbyPlayerSnapshot[] = [];
+        Array.from(this.lobbyPlayers.entries()).forEach(([userId, player]) => {
+            const playerBase = this.authService.getUser(userId);
+            if (!playerBase) return;
+            result.push({
+                ...playerBase,
+                ...player
+            })
+        })
+        return result;
+    }
+
+    getPlayerSnapshot(userId: string): LobbyPlayerSnapshot {
+        return {
+            ...this.authService.getUser(userId)!,
+            ...this.lobbyPlayers.get(userId)!
+        };
     }
 
     //#region Player Methods
-    addLobbyPlayer(userId: string): LobbyPlayer {
-        const player: LobbyPlayer = {
-            position: { x: 0, y: 0 },
-        };
-        this.lobbyPlayers.set(userId, player);
-        return player;
-    }
-
     updatePosition(userId: string, position: Position): boolean {
         const player = this.lobbyPlayers.get(userId);
         if (player) {
@@ -37,8 +51,17 @@ export class LobbyService {
         return false;
     }
 
-    getOtherPlayers(excludeUserId: string): Array<{userId: string, player: LobbyPlayer}> {
-        const result: Array<{userId: string, player: LobbyPlayer}> = [];
+    updateIsMoving(userId: string, isMoving: boolean): boolean {
+        const player = this.lobbyPlayers.get(userId);
+        if (player) {
+            player.isMoving = isMoving;
+            return true;
+        }
+        return false;
+    }
+
+    getOtherPlayers(excludeUserId: string): Array<{userId: string, player: LobbyPlayerState}> {
+        const result: Array<{userId: string, player: LobbyPlayerState}> = [];
 
         for (const [userId, player] of this.lobbyPlayers.entries()) {
             if (userId !== excludeUserId) {

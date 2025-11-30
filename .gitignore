@@ -173,3 +173,5 @@ server/.vscode-test
 *.log
 
 client_clone_*
+
+CLAUDE.md

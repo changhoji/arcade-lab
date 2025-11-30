@@ -15,7 +15,6 @@ public class WardrobePanel : UIPanelBase
     {
         for (int i = 0; i < k_NumberOfSkin; i++)
         {
-            Debug.Log($"i = {i}");
             m_Images[i].sprite = m_PlayerLibrary.Library[i].GetSprite("Idle", "Idle_00");
             m_Images[i].color = i == 0 ? Color.white : Color.grey;
         }
@@ -38,15 +37,22 @@ public class WardrobePanel : UIPanelBase
 
         if (m_SelectedIndex != m_PreviousIndex)
         {
-            PlayerController.LocalPlayer.SetSkinIndex(m_SelectedIndex);
+            PlayerBase.LocalPlayer.SetSkinIndex(m_SelectedIndex);
             m_Images[m_PreviousIndex].color = Color.grey;
             m_Images[m_SelectedIndex].color = Color.white;
             m_PreviousIndex = m_SelectedIndex;
         }   
     }
 
+    public override void Show()
+    {
+        base.Show();
+        
+        Debug.Log("wardrobepanel.show");
+    }
+
     public void ChangeNickname(string nickname)
     {
-        PlayerController.LocalPlayer.SetNickname(nickname);
+        PlayerBase.LocalPlayer.SetNickname(nickname);
     }
 }

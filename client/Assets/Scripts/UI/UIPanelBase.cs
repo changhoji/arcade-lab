@@ -12,20 +12,20 @@ public abstract class UIPanelBase : MonoBehaviour
 
     public virtual void Show()
     {
-        var localPlayer = PlayerController.LocalPlayer;
+        var localPlayer = PlayerBase.LocalPlayer;
         if (localPlayer != null)
         {
-            localPlayer.SetIsMovable(false);
+            localPlayer.GetComponent<PlayerMovement>().IsMovable = false;
         }
         gameObject.SetActive(true);
     }
 
     public virtual void Hide()
     {
-        var localPlayer = PlayerController.LocalPlayer;
+        var localPlayer = PlayerBase.LocalPlayer;
         if (localPlayer != null)
         {
-            localPlayer.SetIsMovable(true);
+            localPlayer.GetComponent<PlayerMovement>().IsMovable = true;
         }
         gameObject.SetActive(false);
     }

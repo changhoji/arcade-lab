@@ -1,6 +1,6 @@
-import { Player, Position } from "./common";
+import { PlayerState, Position } from "./common";
 
-export interface ColorLabPlayerData extends Player {
+export interface ColorLabPlayerData extends PlayerState {
     position: Position;
     colorIndex: number;
 }

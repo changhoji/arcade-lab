@@ -4,6 +4,7 @@ namespace ArcadeLab.Data
     public class LobbyPlayerData : PlayerBaseData
     {
         public Position position;
+        public bool isMoving;
     }
 
     public class PlayerMoveData

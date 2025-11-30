@@ -12,13 +12,14 @@ public abstract class InteractableBase : MonoBehaviour
 
         if (Input.GetKeyDown(m_KeyCode))
         {
+            Debug.Log("call interact");
             Interact();
         }
     }
 
     protected void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.TryGetComponent<PlayerController>(out var player) && player.IsOwner)
+        if (other.TryGetComponent<PlayerBase>(out var player) && player.IsOwner)
         {
             m_IsInRange = true;
         }
@@ -26,7 +27,7 @@ public abstract class InteractableBase : MonoBehaviour
 
     protected void OnTriggerExit2D(Collider2D other)
     {
-        if (other.TryGetComponent<PlayerController>(out var player) && player.IsOwner)
+        if (other.TryGetComponent<PlayerBase>(out var player) && player.IsOwner)
         {
             m_IsInRange = false;
         }
