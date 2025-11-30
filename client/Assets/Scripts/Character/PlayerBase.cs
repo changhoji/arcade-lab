@@ -8,6 +8,7 @@ public class PlayerBase : MonoBehaviour
     static public PlayerBase LocalPlayer { get; private set; }
 
     public event Action<int> OnChangeSkin;
+    public event Action<string> OnChangeNickname;
 
     public string UserId { get; private set; }
     public string Nickname { get; private set; }
@@ -40,6 +41,7 @@ public class PlayerBase : MonoBehaviour
     {
         Nickname = nickname;
         m_NicknameText.text = nickname;
+        OnChangeNickname?.Invoke(nickname);
     }
 
     public void SetSkinIndex(int skinIndex)

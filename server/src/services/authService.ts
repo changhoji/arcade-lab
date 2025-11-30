@@ -41,4 +41,13 @@ export class AuthService {
         }
         return false;
     }
+
+    updateNickname(userId: string, nickname: string): boolean {
+        const player = this.players.get(userId);
+        if (player) {
+            player.nickname = nickname;
+            return true;
+        }
+        return false;
+    }
 }

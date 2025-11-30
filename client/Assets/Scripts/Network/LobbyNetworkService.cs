@@ -38,6 +38,7 @@ public class LobbyNetworkService : INetworkService
     public event Action<LobbyPlayerData> OnPlayerJoined;
     public event Action<string> OnPlayerLeft;
     public event Action<string, int> OnSkinChanged;
+    public event Action<string, string> OnNicknameChanged;
 
     [Inject] AuthManager m_AuthManager;
     SocketIOUnity m_LobbySocket;
@@ -102,6 +103,14 @@ public class LobbyNetworkService : INetworkService
             var skinIndex = response.GetValue<int>(1);
 
             OnSkinChanged?.Invoke(userId, skinIndex);
+        });
+
+        m_LobbySocket.OnUnityThread("player:nicknameChanged", response =>
+        {
+            var userId = response.GetValue<string>(0);
+            var nickname = response.GetValue<string>(1);
+
+            OnNicknameChanged?.Invoke(userId, nickname);
         });
 
         // RegisterPlayerEventListeners();
@@ -174,6 +183,11 @@ public class LobbyNetworkService : INetworkService
     public void EmitPlayerSkinIndex(int skinIndex)
     {
         m_LobbySocket.Emit("player:changeSkin", skinIndex);
+    }
+
+    public void EmitPlayerNickname(string nickname)
+    {
+        m_LobbySocket.Emit("player:changeNickname", nickname);
     }
 
     // void RegisterPlayerEventListeners()

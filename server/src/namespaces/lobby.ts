@@ -91,7 +91,18 @@ export class LobbyNamespace {
             socket.on("player:changeSkin", (skinIndex: number) => {
                 if (this.authService && lobbyService) {
                     if (this.authService.updateSkinIndex(userId, skinIndex)) {
-                        socket.to(lobbyService.lobbyId).emit("player:skinChanged", userId, skinIndex);
+                        socket.to(lobbyService.lobbyId).emit("player:skinChanged",
+                            userId,
+                            skinIndex
+                        );
+                    }
+                }
+            });
+
+            socket.on("player:changeNickname", (nickname: string) => {
+                if (this.authService && lobbyService) {
+                    if (this.authService.updateNickname(userId, nickname)) {
+                        socket.to(lobbyService.lobbyId).emit("player:nicknameChanged", userId, nickname);
                     }
                 }
             });

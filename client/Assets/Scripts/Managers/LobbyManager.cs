@@ -28,6 +28,7 @@ public class LobbyManager : MonoBehaviour
         m_LobbyService.OnPlayerJoined += HandlePlayerJoined;
         m_LobbyService.OnPlayerLeft += HandlePlayerLeft;
         m_LobbyService.OnSkinChanged += HandleSkinChanged;
+        m_LobbyService.OnNicknameChanged += HandleNicknameChanged;
     }
 
     void OnDestroy()
@@ -38,6 +39,7 @@ public class LobbyManager : MonoBehaviour
         m_LobbyService.OnPlayerJoined -= HandlePlayerJoined;
         m_LobbyService.OnPlayerLeft -= HandlePlayerLeft;
         m_LobbyService.OnSkinChanged -= HandleSkinChanged;
+        m_LobbyService.OnNicknameChanged -= HandleNicknameChanged;
     }
 
     void HandleLobbyInitResponse(LobbyPlayerData[] players)
@@ -56,6 +58,7 @@ public class LobbyManager : MonoBehaviour
             if (isOwner)
             {
                 playerBase.OnChangeSkin += (skinIndex) => { m_LobbyService.EmitPlayerSkinIndex(skinIndex); };
+                playerBase.OnChangeNickname += (nickname) => { m_LobbyService.EmitPlayerNickname(nickname); };
                 playerMovement.OnChangePosiiton += (position) => { m_LobbyService.EmitPlayerMoved(position); };
                 playerMovement.OnStartMoving += () => { m_LobbyService.EmitPlayerMoving(true); };
                 playerMovement.OnStopMoving += () => { m_LobbyService.EmitPlayerMoving(false); };
@@ -110,6 +113,15 @@ public class LobbyManager : MonoBehaviour
         {
             var player = m_Players[userId];
             player.SetSkinIndex(skinIndex);
+        }
+    }
+
+    void HandleNicknameChanged(string userId, string nickname)
+    {
+        if (m_Players.ContainsKey(userId))
+        {
+            var player = m_Players[userId];
+            player.SetNickname(nickname);
         }
     }
 }
