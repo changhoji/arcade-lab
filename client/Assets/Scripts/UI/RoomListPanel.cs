@@ -23,7 +23,7 @@ public class RoomListPanel : UIPanelBase
     {
         m_Manager.OnRoomListResponse += UpdateRooms;
         m_CreateButton.onClick.AddListener(() => m_Manager.CreateRoom(m_GameConfig.gameId, m_NameInput.text));
-        m_RefreshButton.onClick.AddListener(() => m_Manager.JoinRoom(m_GameConfig.gameId));
+        m_RefreshButton.onClick.AddListener(() => m_Manager.GetRoomList(m_GameConfig.gameId));
         gameObject.SetActive(false);
     }
 

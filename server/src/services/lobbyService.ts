@@ -1,3 +1,4 @@
+import { GAME_CONFIGS } from '../configs/games';
 import { Position } from '../types/common';
 import {
   CreateRoomRequest,
@@ -86,7 +87,8 @@ export class LobbyService {
       roomId,
       request.name,
       hostId,
-      request.gameId
+      request.gameId,
+      GAME_CONFIGS[request.gameId].maxPlayers
     );
     this.rooms.set(roomId, room);
     return room;

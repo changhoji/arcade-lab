@@ -33,14 +33,14 @@ namespace ArcadeLab.Data
         public int currentPlayers;
     }
 
-    #region Room Datas
     public class RoomData
     {
         public string roomId;
-        public string gameId;
         public string name;
         public string hostId;
+        public string gameId;
         public int currentPlayers;
+        public int maxPlayers;
     }
 
     public class RoomPlayerData : PlayerBaseData
@@ -54,5 +54,10 @@ namespace ArcadeLab.Data
         public string gameId;
         public string name;
     }
-    #endregion
+
+    public class JoinRoomResponse
+    {
+        public RoomData room;
+        public RoomPlayerData[] players;
+    }
 }

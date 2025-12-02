@@ -8,19 +8,27 @@ using VContainer;
 public class RoomManager : MonoBehaviour
 {
     public event Action<RoomData[]> OnRoomListResponse;
+    public event Action<RoomData> OnCreateRoomResposne;
+    public event Action<RoomData> OnJoinRoomResponse;
+
+    public bool IsInRoom => m_CurrentRoom != null;
 
     [Inject] LobbyNetworkService m_LobbyService;
+
+    RoomData m_CurrentRoom;
 
     void Start()
     {
         m_LobbyService.OnRoomListResponse += HandleRoomListResponse;
         m_LobbyService.OnCreateRoomResposne += HandleCreateRoomResponse;
+        m_LobbyService.OnJoinRoomResponse += HandleJoinRoomResponse;
     }
 
     void OnDestroy()
     {
         m_LobbyService.OnRoomListResponse -= HandleRoomListResponse;
         m_LobbyService.OnCreateRoomResposne -= HandleCreateRoomResponse;
+        m_LobbyService.OnJoinRoomResponse -= HandleJoinRoomResponse;
     }
 
     public void GetRoomList(string gameId)
@@ -30,11 +38,23 @@ public class RoomManager : MonoBehaviour
 
     public void CreateRoom(string gameId, string name)
     {
+        if (m_CurrentRoom != null)
+        {
+            Debug.LogWarning("player already in a room");
+            return;
+        }
+
         m_LobbyService.RequestCreateRoom(gameId, name);
     }
 
     public void JoinRoom(string roomId)
     {
+        if (m_CurrentRoom != null)
+        {
+            Debug.LogWarning("player already in a room");
+            return;
+        }
+
         m_LobbyService.RequestJoinRoom(roomId);
     }
 
@@ -43,36 +63,26 @@ public class RoomManager : MonoBehaviour
         OnRoomListResponse?.Invoke(rooms);
     }
 
-    void HandleCreateRoomResponse(string roomId)
+    void HandleCreateRoomResponse(RoomData room)
     {
-        if (string.IsNullOrEmpty(roomId))
+        if (room == null)
         {
             Debug.LogError("failed create room");
             return;
         }
 
-        // m_Panel.UpdateRooms
+        m_CurrentRoom = room;
+        OnCreateRoomResposne?.Invoke(room);
     }
 
-    // public RoomData[] GetRoomDatas(string gameId)
-    // {
-    //     return m_Rooms.Values.Where(room => room.gameId == gameId).ToArray();
-    // }
+    void HandleJoinRoomResponse(RoomData room)
+    {
+        if (room == null)
+        {
+            Debug.LogError("failed join room");
+        }
 
-    // void HandleRoomCreated(RoomData roomData)
-    // {
-    //     Debug.Log("add room");
-    //     m_Rooms.Add(roomData.roomId, roomData);
-    // }
-
-    // void HandleRoomDeleted(string roomId)
-    // {
-    //     m_Rooms.Remove(roomId);
-    // }
-
-    // void OnDestroy()
-    // {
-    //     m_LobbyService.OnRoomCreated -= HandleRoomCreated;
-    //     m_LobbyService.OnRoomDeleted -= HandleRoomDeleted;
-    // }
+        m_CurrentRoom = room;
+        OnJoinRoomResponse?.Invoke(room);
+    }
 }

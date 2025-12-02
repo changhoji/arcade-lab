@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10a166585edaa484981ed7a238ad4834, type: 3}
   m_Name: ColorLabConfig
   m_EditorClassIdentifier: 
-  gmaeId: color-lab
+  gameId: color-lab
   displayName: Color Lab
   icon: {fileID: -4783177402104371535, guid: ec4638c8d2e784dc487b0628af5740ed, type: 3}
   maxPlayers: 2

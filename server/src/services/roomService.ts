@@ -8,7 +8,8 @@ export class RoomService {
     public roomId: string,
     public name: string,
     public hostId: string,
-    public gameId: string
+    public gameId: string,
+    public maxPlayers: number
   ) {}
 
   toRoomData(): RoomData {
@@ -18,6 +19,7 @@ export class RoomService {
       hostId: this.hostId,
       gameId: this.gameId,
       currentPlayers: this.roomPlayers.size,
+      maxPlayers: this.maxPlayers,
     };
   }
 

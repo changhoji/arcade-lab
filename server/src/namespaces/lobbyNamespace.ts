@@ -141,7 +141,7 @@ export class LobbyNamespace {
         'room:create',
         (
           request: CreateRoomRequest,
-          callback: (roomId: string | null) => void
+          callback: (room: RoomData | null) => void
         ) => {
           console.log('create request');
           if (!lobbyService) {
@@ -160,7 +160,7 @@ export class LobbyNamespace {
           room.joinRoom(userId);
           socket.join(`room:${roomId}`);
           roomService = room;
-          callback(roomId);
+          callback(room.toRoomData());
         }
       );
 

@@ -9,6 +9,7 @@ public class MainLobbyLifetimeScope : LifetimeScope
         builder.RegisterComponentInHierarchy<LobbyUIManager>();
         builder.RegisterComponentInHierarchy<RoomManager>();
         builder.RegisterComponentInHierarchy<RoomListPanel>();
+        builder.RegisterComponentInHierarchy<CurrentRoomPanel>();
         builder.RegisterComponentInHierarchy<Wardrobe>();
     }
 }

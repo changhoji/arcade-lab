@@ -32,7 +32,8 @@ public class LobbyNetworkService : INetworkService
     public event Action<string> OnCreateLobbyResponse;
     public event Action<string> OnJoinLobbyResponse;
     public event Action<RoomData[]> OnRoomListResponse;
-    public event Action<string> OnCreateRoomResposne;
+    public event Action<RoomData> OnCreateRoomResposne;
+    public event Action<RoomData> OnJoinRoomResponse;
 
     // lobby sync events
     public event Action<LobbyPlayerData[]> OnLobbyInitResponse;
@@ -210,20 +211,19 @@ public class LobbyNetworkService : INetworkService
         var context = SynchronizationContext.Current;
         m_LobbySocket.Emit("room:create", (response) =>
         {
-            var roomId = response.GetValue<string>(0);
+            var roomId = response.GetValue<RoomData>(0);
             context.Post(_ => OnCreateRoomResposne?.Invoke(roomId), null);
         }, request);
     }
 
     public void RequestJoinRoom(string roomId)
     {
-        throw new NotImplementedException();
-    //     var context = SynchronizationContext.Current;
-    //     m_LobbySocket.Emit("room:join", (response) =>
-    //     {
-    //         var others = response.GetValue<RoomPlayerData[]>(0);
-    //         context.Post(_ => OnJoinRoomResponse?.Invoke())
-    //     }, roomId);
+        var context = SynchronizationContext.Current;
+        m_LobbySocket.Emit("room:join", (response) =>
+        {
+            var others = response.GetValue<RoomPlayerData[]>(0);
+            // context.Post(_ => OnJoinRoomResponse?.Invoke(), null);
+        }, roomId);
     }
 
     public void EmitPlayerMoved(Position position)

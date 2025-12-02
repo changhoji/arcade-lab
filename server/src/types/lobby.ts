@@ -39,6 +39,7 @@ export interface RoomData {
   hostId: string;
   gameId: string;
   currentPlayers: number;
+  maxPlayers: number;
 }
 
 export interface RoomPlayerState {
