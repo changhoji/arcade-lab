@@ -73,7 +73,11 @@ export class LobbyService {
     return false;
   }
 
-  createRoom(roomId: string, request: CreateRoomRequest): RoomService | null {
+  createRoom(
+    roomId: string,
+    hostId: string,
+    request: CreateRoomRequest
+  ): RoomService | null {
     if (this.rooms.has(roomId)) {
       return null;
     }
@@ -81,7 +85,7 @@ export class LobbyService {
       this.authService,
       roomId,
       request.name,
-      request.hostId,
+      hostId,
       request.gameId
     );
     this.rooms.set(roomId, room);

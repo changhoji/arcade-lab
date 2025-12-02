@@ -201,16 +201,29 @@ public class LobbyNetworkService : INetworkService
 
     public void RequestCreateRoom(string gameId, string name)
     {
-        Temp temp = new Temp();
-        temp.gameId = gameId;
-        temp.name = name;
+        var request = new CreateRoomRequest
+        {
+            gameId = gameId, 
+            name = name
+        };
 
         var context = SynchronizationContext.Current;
         m_LobbySocket.Emit("room:create", (response) =>
         {
             var roomId = response.GetValue<string>(0);
             context.Post(_ => OnCreateRoomResposne?.Invoke(roomId), null);
-        }, temp);
+        }, request);
+    }
+
+    public void RequestJoinRoom(string roomId)
+    {
+        throw new NotImplementedException();
+    //     var context = SynchronizationContext.Current;
+    //     m_LobbySocket.Emit("room:join", (response) =>
+    //     {
+    //         var others = response.GetValue<RoomPlayerData[]>(0);
+    //         context.Post(_ => OnJoinRoomResponse?.Invoke())
+    //     }, roomId);
     }
 
     public void EmitPlayerMoved(Position position)

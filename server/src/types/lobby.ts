@@ -31,7 +31,6 @@ export interface Lobby {
 export interface CreateRoomRequest {
   gameId: string;
   name: string;
-  hostId: string;
 }
 
 export interface RoomData {
@@ -47,8 +46,3 @@ export interface RoomPlayerState {
 }
 
 export type RoomPlayerSnapshot = PlayerBaseState & RoomPlayerState;
-
-export interface CreateRoomRequest {
-  gameId: string;
-  name: string;
-}

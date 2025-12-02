@@ -5,7 +5,7 @@ using VContainer;
 public class AuthPanel : UIPanelBase
 {
     [SerializeField] Button m_GuestButton;
-    [Inject] AuthManager m_AuthManager;
+    [Inject] AuthManager m_Manager;
 
     void Start()
     {
@@ -14,6 +14,6 @@ public class AuthPanel : UIPanelBase
 
     void OnClickGuest()
     {
-        m_AuthManager.SignInAnonymously();
+        m_Manager.SignInAnonymously();
     }
 }

@@ -150,7 +150,7 @@ export class LobbyNamespace {
           }
 
           const roomId = generateId();
-          const room = lobbyService.createRoom(roomId, request);
+          const room = lobbyService.createRoom(roomId, userId, request);
           if (!room) {
             callback(null);
             return;

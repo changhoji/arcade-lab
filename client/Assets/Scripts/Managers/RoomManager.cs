@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ArcadeLab.Data;
@@ -6,23 +7,20 @@ using VContainer;
 
 public class RoomManager : MonoBehaviour
 {
+    public event Action<RoomData[]> OnRoomListResponse;
+
     [Inject] LobbyNetworkService m_LobbyService;
-    [Inject] RoomListPanel m_Panel;
 
     void Start()
     {
         m_LobbyService.OnRoomListResponse += HandleRoomListResponse;
         m_LobbyService.OnCreateRoomResposne += HandleCreateRoomResponse;
-        m_Panel.OnClickRefresh += GetRoomList;
-        m_Panel.OnClickCreate += CreateRoom;
     }
 
     void OnDestroy()
     {
         m_LobbyService.OnRoomListResponse -= HandleRoomListResponse;
         m_LobbyService.OnCreateRoomResposne -= HandleCreateRoomResponse;
-        m_Panel.OnClickRefresh -= GetRoomList;
-        m_Panel.OnClickCreate -= CreateRoom;
     }
 
     public void GetRoomList(string gameId)
@@ -35,9 +33,14 @@ public class RoomManager : MonoBehaviour
         m_LobbyService.RequestCreateRoom(gameId, name);
     }
 
+    public void JoinRoom(string roomId)
+    {
+        m_LobbyService.RequestJoinRoom(roomId);
+    }
+
     void HandleRoomListResponse(RoomData[] rooms)
     {
-        m_Panel.UpdateRooms(rooms);
+        OnRoomListResponse?.Invoke(rooms);
     }
 
     void HandleCreateRoomResponse(string roomId)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ArcadeLab.Data;
@@ -7,17 +8,15 @@ using VContainer;
 
 public class LobbyBrowserManager : MonoBehaviour
 {
+    public event Action<LobbyData[]> OnLobbyListResponse;
+
     [Inject] LobbyNetworkService m_LobbyService;
     [Inject] AuthManager m_AuthManager;
-    [Inject] LobbyBrowserPanel m_Panel;
 
     Dictionary<string, LobbyData> m_Lobbies = new();
 
     void Start()
     {
-        m_Panel.OnClickCreate += CreateLobby;
-        m_Panel.OnClickRefresh += GetLobbyList;
-        m_Panel.OnClickJoin += JoinLobby;
         m_AuthManager.OnSignInSuccess += HandleSignInSuccess;
         m_LobbyService.OnLobbyListResponse += HandleLobbyListResponse;
         m_LobbyService.OnCreateLobbyResponse += HandleCreateLobbyResponse;
@@ -26,9 +25,6 @@ public class LobbyBrowserManager : MonoBehaviour
 
     void OnDestroy()
     {
-        m_Panel.OnClickCreate -= CreateLobby;
-        m_Panel.OnClickRefresh -= GetLobbyList;
-        m_Panel.OnClickJoin -= JoinLobby;
         m_AuthManager.OnSignInSuccess -= HandleSignInSuccess;
         m_LobbyService.OnLobbyListResponse -= HandleLobbyListResponse;
         m_LobbyService.OnCreateLobbyResponse -= HandleCreateLobbyResponse;
@@ -68,34 +64,30 @@ public class LobbyBrowserManager : MonoBehaviour
             m_Lobbies.Add(lobby.lobbyId, lobby);
         }
 
-        m_Panel.UpdateLobbies(lobbies);
+        OnLobbyListResponse?.Invoke(lobbies);
     }
 
     void HandleCreateLobbyResponse(string lobbyId)
     {
-        Debug.Log($"created lobby id = {lobbyId}");
+        Debug.Log($"create lobby resposne: {lobbyId}");
         if (string.IsNullOrEmpty(lobbyId))
         {
             Debug.LogError("failed create lobby");
+            return;
         }
-        else
-        {
-            PlayerPrefs.SetString("LobbyId", lobbyId);
-            SceneManager.LoadScene("Lobby");
-        }
+        PlayerPrefs.SetString("LobbyId", lobbyId);
+        SceneManager.LoadScene("Lobby");
     }
 
     void HandleJoinLobbyResponse(string lobbyId)
     {
-        Debug.Log($"join lobby: {lobbyId}");
+        Debug.Log($"join lobby response: {lobbyId}");
         if (string.IsNullOrEmpty(lobbyId))
         {
             Debug.LogError("failed join lobby");
+            return;
         }
-        else
-        {
-            PlayerPrefs.SetString("LobbyId", lobbyId);
-            SceneManager.LoadScene("Lobby");
-        }
+        PlayerPrefs.SetString("LobbyId", lobbyId);
+        SceneManager.LoadScene("Lobby");
     }
 }

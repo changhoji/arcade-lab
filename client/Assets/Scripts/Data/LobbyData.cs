@@ -49,11 +49,10 @@ namespace ArcadeLab.Data
         public bool isHost;
     }
 
-    public class RoomCreateData
+    public class CreateRoomRequest
     {
         public string gameId;
-        public string roomName;
-        public int maxPlayers;
+        public string name;
     }
     #endregion
 }

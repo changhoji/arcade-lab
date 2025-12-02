@@ -8,22 +8,27 @@ using VContainer;
 
 public class LobbyBrowserPanel : UIPanelBase
 {
-    public event Action OnClickRefresh;
-    public event Action<string> OnClickCreate;
-    public event Action<string> OnClickJoin;
-
     [SerializeField] Transform m_ScrollContent;
     [SerializeField] GameObject m_LobbyItemPrefab;
     [SerializeField] TMP_InputField m_NameInput;
     [SerializeField] Button m_CreateButton;
     [SerializeField] Button m_RefreshButton;
 
+    [Inject] LobbyBrowserManager m_Manager;
+
     List<LobbyItem> m_LobbyItems = new();
 
     void Start()
     {
-        m_CreateButton.onClick.AddListener(() => OnClickCreate?.Invoke(m_NameInput.text));
-        m_RefreshButton.onClick.AddListener(() => OnClickRefresh?.Invoke());
+        m_Manager.OnLobbyListResponse += UpdateLobbies;
+
+        m_CreateButton.onClick.AddListener(() => m_Manager.CreateLobby(m_NameInput.text));
+        m_RefreshButton.onClick.AddListener(() => m_Manager.GetLobbyList());
+    }
+
+    void OnDestroy()
+    {
+        m_Manager.OnLobbyListResponse -= UpdateLobbies;
     }
 
     public void UpdateLobbies(LobbyData[] lobbies)
@@ -40,7 +45,7 @@ public class LobbyBrowserPanel : UIPanelBase
             var lobbyObject = Instantiate(m_LobbyItemPrefab, m_ScrollContent);
             var lobbyItem = lobbyObject.GetComponent<LobbyItem>();
             lobbyItem.Init(lobbies[i]);
-            lobbyItem.OnClickJoin += (lobbyId) => OnClickJoin?.Invoke(lobbyId);
+            lobbyItem.OnClickJoin += (lobbyId) => m_Manager.JoinLobby(lobbyId);
             lobbyItem.transform.Translate(new Vector3(0, -50*i, 0));
             m_LobbyItems.Add(lobbyItem);
         }
