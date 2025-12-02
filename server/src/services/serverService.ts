@@ -1,6 +1,6 @@
-import { Lobby as LobbyData } from '../types/lobby';
-import { AuthService } from './authService';
-import { LobbyService } from './lobbyService';
+import { AuthService } from '@/services/authService';
+import { LobbyService } from '@/services/lobbyService';
+import { Lobby as LobbyData } from '@/types/lobby';
 export class ServerService {
   private lobbies: Map<string, LobbyService> = new Map();
 

@@ -69,24 +69,12 @@ public class LobbyBrowserManager : MonoBehaviour
 
     void HandleCreateLobbyResponse(string lobbyId)
     {
-        Debug.Log($"create lobby resposne: {lobbyId}");
-        if (string.IsNullOrEmpty(lobbyId))
-        {
-            Debug.LogError("failed create lobby");
-            return;
-        }
         PlayerPrefs.SetString("LobbyId", lobbyId);
         SceneManager.LoadScene("Lobby");
     }
 
     void HandleJoinLobbyResponse(string lobbyId)
     {
-        Debug.Log($"join lobby response: {lobbyId}");
-        if (string.IsNullOrEmpty(lobbyId))
-        {
-            Debug.LogError("failed join lobby");
-            return;
-        }
         PlayerPrefs.SetString("LobbyId", lobbyId);
         SceneManager.LoadScene("Lobby");
     }

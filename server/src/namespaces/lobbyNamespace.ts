@@ -1,16 +1,17 @@
-import { Namespace, Server } from 'socket.io';
-import { AuthService } from '../services/authService';
-import { LobbyService } from '../services/lobbyService';
-import { RoomService } from '../services/roomService';
-import { ServerService } from '../services/serverService';
-import { Position } from '../types/common';
+import { AuthService } from '@/services/authService';
+import { LobbyService } from '@/services/lobbyService';
+import { RoomService } from '@/services/roomService';
+import { ServerService } from '@/services/serverService';
+import { NetworkResult, Position } from '@/types/common';
 import {
   CreateRoomRequest,
+  JoinRoomResponse,
   Lobby as LobbyData,
   LobbyPlayerSnapshot,
   RoomData,
-} from '../types/lobby';
-import { generateId } from '../utils/idGenerator';
+} from '@/types/lobby';
+import { generateId } from '@/utils/idGenerator';
+import { Namespace, Server } from 'socket.io';
 
 export class LobbyNamespace {
   private namespace: Namespace;
@@ -33,53 +34,93 @@ export class LobbyNamespace {
       let lobbyService: LobbyService | null;
       let roomService: RoomService | null;
 
-      socket.on('lobby:list', (callback: (lobbies: LobbyData[]) => void) => {
-        const lobbies = this.serverService.getLobbyDatas();
-        callback(lobbies);
-      });
+      socket.on(
+        'lobby:list',
+        (callback: (result: NetworkResult<LobbyData[]>) => void) => {
+          const lobbies = this.serverService.getLobbyDatas();
+          callback({
+            success: true,
+            data: lobbies,
+            error: null,
+          });
+        }
+      );
 
+      // 여기랑 join이랑 클라이언트 측에서 널체킹하는거 매니저까지 안가게
       socket.on(
         'lobby:create',
-        (name: string, callback: (lobbyId: string | null) => void) => {
+        (name: string, callback: (result: NetworkResult<string>) => void) => {
           const lobbyId = generateId();
           const lobby = this.serverService.createLobby(lobbyId, name);
-          if (lobby) {
-            lobby.joinLobby(userId);
-            socket.join(lobbyId);
-            lobbyService = lobby;
-            callback(lobbyId);
-          } else {
-            callback(null);
+          if (!lobby) {
+            callback({
+              success: false,
+              data: null,
+              error: '',
+            });
+            return;
           }
+
+          lobby.joinLobby(userId);
+          socket.join(lobbyId);
+          lobbyService = lobby;
+          callback({
+            success: true,
+            data: lobbyId,
+            error: null,
+          });
         }
       );
 
       socket.on(
         'lobby:join',
-        (lobbyId: string, callback: (lobbyId: string | null) => void) => {
+        (
+          lobbyId: string,
+          callback: (result: NetworkResult<string>) => void
+        ) => {
           const lobby = this.serverService.getLobby(lobbyId);
-          if (lobby) {
-            lobby.joinLobby(userId);
-            socket.join(lobbyId);
-            lobbyService = lobby;
-            callback(lobbyId);
-          } else {
-            callback(null);
+          if (!lobby) {
+            callback({
+              success: false,
+              data: null,
+              error: 'cannot find lobby',
+            });
+            return;
           }
+
+          lobby.joinLobby(userId);
+          socket.join(lobbyId);
+          lobbyService = lobby;
+          callback({
+            success: true,
+            data: lobbyId,
+            error: null,
+          });
         }
       );
 
       socket.on(
         'lobby:init',
-        (callback: (players: LobbyPlayerSnapshot[]) => void) => {
-          if (lobbyService) {
-            const players = lobbyService.getPlayerSnapshots();
-            callback(players);
-
-            socket
-              .to(lobbyService.lobbyId)
-              .emit('player:joined', lobbyService.getPlayerSnapshot(userId));
+        (callback: (result: NetworkResult<LobbyPlayerSnapshot[]>) => void) => {
+          if (!lobbyService) {
+            callback({
+              success: false,
+              data: null,
+              error: 'Cannot find lobby',
+            });
+            return;
           }
+
+          const players = lobbyService.getPlayerSnapshots();
+          callback({
+            success: true,
+            data: players,
+            error: null,
+          });
+
+          socket
+            .to(lobbyService.lobbyId)
+            .emit('player:joined', lobbyService.getPlayerSnapshot(userId));
         }
       );
 
@@ -141,18 +182,25 @@ export class LobbyNamespace {
         'room:create',
         (
           request: CreateRoomRequest,
-          callback: (room: RoomData | null) => void
+          callback: (result: NetworkResult<RoomData>) => void
         ) => {
-          console.log('create request');
           if (!lobbyService) {
-            callback(null);
+            callback({
+              success: false,
+              data: null,
+              error: 'cannot find joined lobby',
+            });
             return;
           }
 
           const roomId = generateId();
           const room = lobbyService.createRoom(roomId, userId, request);
           if (!room) {
-            callback(null);
+            callback({
+              success: false,
+              data: null,
+              error: 'duplicated room id',
+            });
             return;
           }
 
@@ -160,28 +208,50 @@ export class LobbyNamespace {
           room.joinRoom(userId);
           socket.join(`room:${roomId}`);
           roomService = room;
-          callback(room.toRoomData());
+          callback({
+            success: true,
+            data: room.toRoomData(),
+            error: null,
+          });
         }
       );
 
       socket.on(
         'room:join',
-        (roomId: string, callback: (roomId: string | null) => void) => {
+        (
+          roomId: string,
+          callback: (result: NetworkResult<JoinRoomResponse>) => void
+        ) => {
           if (!lobbyService) {
-            callback(null);
+            callback({
+              success: false,
+              data: null,
+              error: 'cannot find joined lobby',
+            });
             return;
           }
 
           const room = lobbyService.joinRoom(roomId);
           if (!room) {
-            callback(null);
+            callback({
+              success: false,
+              data: null,
+              error: 'cannot find joined room',
+            });
             return;
           }
 
           room.joinRoom(userId);
           socket.join(`room:${roomId}`);
           roomService = room;
-          callback(roomId);
+          callback({
+            success: true,
+            data: {
+              room: roomService.toRoomData(),
+              players: roomService.getPlayerSnapshots(),
+            },
+            error: null,
+          });
         }
       );
 

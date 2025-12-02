@@ -1,13 +1,13 @@
-import { GAME_CONFIGS } from '../configs/games';
-import { Position } from '../types/common';
+import { GAME_CONFIGS } from '@/configs/games';
+import { AuthService } from '@/services/authService';
+import { RoomService } from '@/services/roomService';
+import { Position } from '@/types/common';
 import {
   CreateRoomRequest,
   LobbyPlayerSnapshot,
   LobbyPlayerState,
   RoomData,
-} from '../types/lobby';
-import { AuthService } from './authService';
-import { RoomService } from './roomService';
+} from '@/types/lobby';
 
 export class LobbyService {
   public currentPlayers: number;

@@ -2,6 +2,13 @@ using UnityEngine;
 
 namespace ArcadeLab.Data
 {
+    public class NetworkResult<T>
+    {
+        public bool success;
+        public T data;
+        public string error;
+    }
+
     public class Position
     {
         public Position() {}

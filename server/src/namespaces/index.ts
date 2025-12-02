@@ -1,8 +1,8 @@
 import { Server } from 'socket.io';
-import { AuthService } from '../services/authService';
-import { ServerService } from '../services/serverService';
-import { AuthNamespace } from './authNamespace';
-import { LobbyNamespace } from './lobbyNamespace';
+import { AuthService } from '@/services/authService';
+import { ServerService } from '@/services/serverService';
+import { AuthNamespace } from '@/namespaces/authNamespace';
+import { LobbyNamespace } from '@/namespaces/lobbyNamespace';
 
 export function setupNameSpaces(io: Server) {
   const authService = new AuthService();

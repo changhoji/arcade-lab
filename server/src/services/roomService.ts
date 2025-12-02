@@ -1,5 +1,5 @@
-import { RoomData, RoomPlayerState } from '../types/lobby';
-import { AuthService } from './authService';
+import { AuthService } from '@/services/authService';
+import { RoomData, RoomPlayerSnapshot, RoomPlayerState } from '@/types/lobby';
 export class RoomService {
   private roomPlayers = new Map<string, RoomPlayerState>();
 
@@ -26,10 +26,24 @@ export class RoomService {
   joinRoom(userId: string) {
     this.roomPlayers.set(userId, {
       isReady: false,
+      isHost: false,
     });
   }
 
   leaveRoom(userId: string) {
     this.roomPlayers.delete(userId);
+  }
+
+  getPlayerSnapshots(): RoomPlayerSnapshot[] {
+    const result: RoomPlayerSnapshot[] = [];
+    Array.from(this.roomPlayers.entries()).forEach(([userId, player]) => {
+      const playerBase = this.authService.getUser(userId);
+      if (!playerBase) return;
+      result.push({
+        ...playerBase,
+        ...player,
+      });
+    });
+    return [];
   }
 }

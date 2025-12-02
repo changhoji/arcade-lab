@@ -7,21 +7,6 @@ export interface LobbyPlayerState {
 
 export type LobbyPlayerSnapshot = PlayerBaseState & LobbyPlayerState;
 
-export interface PlayerMoveData {
-  userId: string;
-  position: Position;
-}
-
-export interface PlayerSkinData {
-  userId: string;
-  skinIndex: number;
-}
-
-export interface PlayerNicknameData {
-  userId: string;
-  nickname: string;
-}
-
 export interface Lobby {
   lobbyId: string;
   name: string;
@@ -44,6 +29,12 @@ export interface RoomData {
 
 export interface RoomPlayerState {
   isReady: boolean;
+  isHost: boolean;
 }
 
 export type RoomPlayerSnapshot = PlayerBaseState & RoomPlayerState;
+
+export interface JoinRoomResponse {
+  room: RoomData;
+  players: RoomPlayerSnapshot[];
+}

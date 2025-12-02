@@ -46,8 +46,16 @@ public class AuthNetworkService : INetworkService
         var context = SynchronizationContext.Current;
         m_AuthSocket.Emit("auth:guest", (response) =>
         {
-            var playerData = response.GetValue<PlayerBaseData>(0);
-            context.Post(_ => OnSignInResponse?.Invoke(playerData), null);
+            var result = response.GetValue<NetworkResult<PlayerBaseData>>();
+            if (result.success)
+            {
+                context.Post(_ => OnSignInResponse?.Invoke(result.data), null);
+            }
+            else
+            {
+                Debug.LogError($"Signin failed: {result.error}");
+            }
+            
         });
     }
 }

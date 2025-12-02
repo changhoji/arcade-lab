@@ -9,7 +9,7 @@ public class RoomManager : MonoBehaviour
 {
     public event Action<RoomData[]> OnRoomListResponse;
     public event Action<RoomData> OnCreateRoomResposne;
-    public event Action<RoomData> OnJoinRoomResponse;
+    public event Action<JoinRoomResponse> OnJoinRoomResponse;
 
     public bool IsInRoom => m_CurrentRoom != null;
 
@@ -75,14 +75,9 @@ public class RoomManager : MonoBehaviour
         OnCreateRoomResposne?.Invoke(room);
     }
 
-    void HandleJoinRoomResponse(RoomData room)
+    void HandleJoinRoomResponse(JoinRoomResponse response)
     {
-        if (room == null)
-        {
-            Debug.LogError("failed join room");
-        }
-
-        m_CurrentRoom = room;
-        OnJoinRoomResponse?.Invoke(room);
+        m_CurrentRoom = response.room;
+        OnJoinRoomResponse?.Invoke(response);
     }
 }

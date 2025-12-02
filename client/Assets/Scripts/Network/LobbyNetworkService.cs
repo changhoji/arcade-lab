@@ -11,29 +11,12 @@ using VContainer;
 
 public class LobbyNetworkService : INetworkService
 {
-
-    // #region Player Events
-    // public event Action<LobbyPlayerData> OnPlayerConnected;
-    // public event Action<LobbyPlayerData[]> OnOtherPlayersReceived;
-    // public event Action<PlayerMoveData> OnPlayerMoved;
-    // public event Action<LobbyPlayerData> OnPlayerJoined;
-    // public event Action<string> OnPlayerLeft;
-    // public event Action<PlayerSkinData> OnPlayerSkin;
-    // public event Action<PlayerNicknameData> OnPlayerNickname;
-    // #endregion
-
-    // #region Room Events
-    // public event Action<RoomData> OnRoomCreated;
-    // public event Action<string> OnRoomDeleted;
-    // #endregion
-
-    // response callbacks
     public event Action<LobbyData[]> OnLobbyListResponse;
     public event Action<string> OnCreateLobbyResponse;
     public event Action<string> OnJoinLobbyResponse;
     public event Action<RoomData[]> OnRoomListResponse;
     public event Action<RoomData> OnCreateRoomResposne;
-    public event Action<RoomData> OnJoinRoomResponse;
+    public event Action<JoinRoomResponse> OnJoinRoomResponse;
 
     // lobby sync events
     public event Action<LobbyPlayerData[]> OnLobbyInitResponse;
@@ -116,9 +99,6 @@ public class LobbyNetworkService : INetworkService
 
             OnNicknameChanged?.Invoke(userId, nickname);
         });
-
-        // RegisterPlayerEventListeners();
-        // RegisterRoomEventListeners();
     }
 
     public async Task ConnectAsync()
@@ -139,8 +119,15 @@ public class LobbyNetworkService : INetworkService
         var context = SynchronizationContext.Current;
         m_LobbySocket.Emit("lobby:list", (response) =>
         {
-            var lobbies = response.GetValue<LobbyData[]>(0);
-            context.Post(_ => OnLobbyListResponse?.Invoke(lobbies), null);
+            var result = response.GetValue<NetworkResult<LobbyData[]>>();
+            if (result.success)
+            {
+                context.Post(_ => OnLobbyListResponse?.Invoke(result.data), null);    
+            }
+            else
+            {
+                Debug.LogError($"Get lobby list failed: {result.error}");
+            }
         });
     }
 
@@ -149,8 +136,15 @@ public class LobbyNetworkService : INetworkService
         var context = SynchronizationContext.Current;
         m_LobbySocket.Emit("lobby:create", (response) =>
         {
-            var lobbyId = response.GetValue<string>(0);
-            context.Post(_ => OnCreateLobbyResponse?.Invoke(lobbyId), null);
+            var result = response.GetValue<NetworkResult<string>>();
+            if (result.success)
+            {
+                context.Post(_ => OnCreateLobbyResponse?.Invoke(result.data), null);
+            }
+            else
+            {
+                Debug.LogError($"Lobby creation failed: {result.error}");
+            }
         }, name);
     }
 
@@ -159,8 +153,15 @@ public class LobbyNetworkService : INetworkService
         var context = SynchronizationContext.Current;
         m_LobbySocket.Emit("lobby:join", (response) =>
         {
-            var lobbyId = response.GetValue<string>(0);
-            context.Post(_ => OnJoinLobbyResponse?.Invoke(lobbyId), null);
+            var result = response.GetValue<NetworkResult<string>>();
+            if (result.success)
+            {
+                context.Post(_ => OnJoinLobbyResponse?.Invoke(result.data), null);    
+            }
+            else
+            {
+                Debug.LogError($"Lobby join failed: {result.error}");
+            }
         }, lobbyId);
     }
 
@@ -169,35 +170,33 @@ public class LobbyNetworkService : INetworkService
         var context = SynchronizationContext.Current;
         m_LobbySocket.Emit("lobby:init", (response) =>
         {
-            var lobbyPlayers = response.GetValue<LobbyPlayerData[]>(0);
-            context.Post(_ => OnLobbyInitResponse?.Invoke(lobbyPlayers), null);
+            var result = response.GetValue<NetworkResult<LobbyPlayerData[]>>();
+            if (result.success)
+            {
+                context.Post(_ => OnLobbyInitResponse?.Invoke(result.data), null);
+            }
+            else
+            {
+                Debug.LogError($"Lobby init failed: {result.error}");
+            }
         });
     }
 
     public void RequestRoomList(string gameId)
     {
-        Debug.Log("request room list");
         var context = SynchronizationContext.Current;
         m_LobbySocket.Emit("room:list", (response) =>
         {
-            try
+            var result = response.GetValue<NetworkResult<RoomData[]>>();
+            if (result.success)
             {
-                var rooms = response.GetValue<RoomData[]>(0);
-            context.Post(_ => OnRoomListResponse?.Invoke(rooms), null);
+                context.Post(_ => OnRoomListResponse?.Invoke(result.data), null);
             }
-            catch (System.Exception e)
+            else
             {
-                Debug.LogWarning(e.Message);
-                throw;
+                Debug.LogError($"Get room list failed: {result.error}");
             }
-            
         }, gameId);
-    }
-
-    public class Temp
-    {
-        public string gameId;
-        public string name;
     }
 
     public void RequestCreateRoom(string gameId, string name)
@@ -207,12 +206,18 @@ public class LobbyNetworkService : INetworkService
             gameId = gameId, 
             name = name
         };
-
         var context = SynchronizationContext.Current;
         m_LobbySocket.Emit("room:create", (response) =>
         {
-            var roomId = response.GetValue<RoomData>(0);
-            context.Post(_ => OnCreateRoomResposne?.Invoke(roomId), null);
+            var result = response.GetValue<NetworkResult<RoomData>>();
+            if (result.success)
+            {
+                context.Post(_ => OnCreateRoomResposne?.Invoke(result.data), null);    
+            }
+            else
+            {
+                Debug.LogError($"Room creation failed: {result.error}");
+            }
         }, request);
     }
 
@@ -221,8 +226,15 @@ public class LobbyNetworkService : INetworkService
         var context = SynchronizationContext.Current;
         m_LobbySocket.Emit("room:join", (response) =>
         {
-            var others = response.GetValue<RoomPlayerData[]>(0);
-            // context.Post(_ => OnJoinRoomResponse?.Invoke(), null);
+            var result = response.GetValue<NetworkResult<JoinRoomResponse>>();
+            if (result.success)
+            {
+                context.Post(_ => OnJoinRoomResponse?.Invoke(result.data), null);
+            }
+            else
+            {
+                Debug.LogError($"Room join failed: {result.error}");
+            }
         }, roomId);
     }
 
@@ -245,86 +257,4 @@ public class LobbyNetworkService : INetworkService
     {
         m_LobbySocket.Emit("player:changeNickname", nickname);
     }
-
-    // void RegisterPlayerEventListeners()
-    // {
-    //     m_LobbySocket.OnUnityThread("player:connect", response =>
-    //     {
-    //         var player = response.GetValue<LobbyPlayerData>();
-    //         OnPlayerConnected?.Invoke(player);
-    //     });
-
-    //     m_LobbySocket.OnUnityThread("player:others", response =>
-    //     {
-    //         var others = response.GetValue<LobbyPlayerData[]>();
-    //         OnOtherPlayersReceived?.Invoke(others);
-    //     });
-
-    //     m_LobbySocket.OnUnityThread("player:move", response =>
-    //     {
-    //         var movedData = response.GetValue<PlayerMoveData>();
-    //         OnPlayerMoved?.Invoke(movedData);
-    //     });
-
-    //     m_LobbySocket.OnUnityThread("player:join", response =>
-    //     {
-    //         Debug.Log("joined");
-    //         var joinedPlayer = response.GetValue<LobbyPlayerData>();
-    //         OnPlayerJoined?.Invoke(joinedPlayer);
-    //     });
-
-    //     m_LobbySocket.OnUnityThread("player:leave", response =>
-    //     {
-    //         Debug.Log("left");
-    //         var leftId = response.GetValue<string>(0);
-    //         Debug.Log(leftId);
-    //         OnPlayerLeft?.Invoke(leftId);
-    //     });
-
-    //     m_LobbySocket.OnUnityThread("player:skin", response =>
-    //     {
-    //         var skinData = response.GetValue<PlayerSkinData>();
-    //         OnPlayerSkin?.Invoke(skinData);
-    //     });
-
-    //     m_LobbySocket.OnUnityThread("player:nickname", response =>
-    //     {
-    //         var nicknameData = response.GetValue<PlayerNicknameData>();
-    //         OnPlayerNickname?.Invoke(nicknameData);
-    //     });
-    // }
-
-    // void RegisterRoomEventListeners()
-    // {
-    //     m_LobbySocket.OnUnityThread("room:create", response =>
-    //     {
-    //         var roomData = response.GetValue<RoomData>();
-    //         OnRoomCreated?.Invoke(roomData);
-    //     });
-    // }
-
-
-    // public void EmitPlayerMove(Position position)
-    // {
-    //     m_LobbySocket.Emit("player:move", position);
-    // }
-
-    // public void EmitPlayerSkin(int skinIndex)
-    // {
-    //     m_LobbySocket.Emit("player:skin", skinIndex);
-    // }
-
-    // public void EmitPlayerNickname(string nickname)
-    // {
-    //     m_LobbySocket.Emit("player:nickname", nickname);
-    // }
-
-    // public void EmitCreateRoom(string gameId, string roomName, int maxPlayers)
-    // {
-    //     var request = new RoomCreateData();
-    //     request.gameId = gameId;
-    //     request.roomName = roomName;
-    //     request.maxPlayers = maxPlayers;
-    //     m_LobbySocket.Emit("room:create", request);
-    // }
 }

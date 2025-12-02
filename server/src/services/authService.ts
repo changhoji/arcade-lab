@@ -1,11 +1,14 @@
-import { PlayerState } from '../types/common';
+import { PlayerState } from '@/types/common';
 
 export class AuthService {
   private players = new Map<string, PlayerState>();
   private socketToUserId = new Map<string, string>();
   private nextKey = 0;
 
-  addPlayer(userId: string, socketId: string): PlayerState {
+  addPlayer(userId: string, socketId: string): PlayerState | null {
+    if (this.players.has(userId)) {
+      return null;
+    }
     const player: PlayerState = {
       userId,
       nickname: `guest${this.nextKey++}`,

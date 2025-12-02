@@ -1,7 +1,8 @@
+import 'tsconfig-paths/register';
 import express from 'express';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
-import { setupNameSpaces } from './namespaces';
+import { setupNameSpaces } from '@/namespaces';
 
 interface PlayerData {
   x: number;
