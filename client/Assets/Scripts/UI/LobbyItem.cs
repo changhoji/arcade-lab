@@ -19,10 +19,7 @@ public class LobbyItem : MonoBehaviour
         m_LobbyData = data;
         m_NameText.text = data.name;
         m_PlayersText.text = $"joined: {data.currentPlayers}";
-    }
-
-    void Start()
-    {
         m_JoinButton.onClick.AddListener(() => OnClickJoin?.Invoke(m_LobbyData.lobbyId));
+
     }
 }

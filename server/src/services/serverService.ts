@@ -1,4 +1,4 @@
-import { Lobby } from '../types/lobby';
+import { Lobby as LobbyData } from '../types/lobby';
 import { AuthService } from './authService';
 import { LobbyService } from './lobbyService';
 export class ServerService {
@@ -22,8 +22,8 @@ export class ServerService {
     }
   }
 
-  getLobbyDatas(): Lobby[] {
-    const result: Lobby[] = [];
+  getLobbyDatas(): LobbyData[] {
+    const result: LobbyData[] = [];
     Array.from(this.lobbies.values()).forEach((lobbyService) => {
       result.push({
         lobbyId: lobbyService.lobbyId,
@@ -36,6 +36,6 @@ export class ServerService {
 
   getLobby(lobbyId: string): LobbyService | null {
     const lobby = this.lobbies.get(lobbyId);
-    return lobby ? lobby : null;
+    return lobby ?? null;
   }
 }

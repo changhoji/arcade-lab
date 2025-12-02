@@ -1,10 +1,18 @@
 import { Position } from '../types/common';
-import { LobbyPlayerSnapshot, LobbyPlayerState } from '../types/lobby';
+import {
+  CreateRoomRequest,
+  LobbyPlayerSnapshot,
+  LobbyPlayerState,
+  RoomData,
+} from '../types/lobby';
 import { AuthService } from './authService';
 import { RoomService } from './roomService';
 
 export class LobbyService {
   public currentPlayers: number;
+
+  private lobbyPlayers = new Map<string, LobbyPlayerState>();
+  private rooms = new Map<string, RoomService>();
 
   constructor(
     public authService: AuthService,
@@ -13,9 +21,6 @@ export class LobbyService {
   ) {
     this.currentPlayers = 0;
   }
-
-  private lobbyPlayers = new Map<string, LobbyPlayerState>();
-  private rooms = new Map<string, RoomService>();
 
   joinLobby(userId: string) {
     this.currentPlayers++;
@@ -68,25 +73,31 @@ export class LobbyService {
     return false;
   }
 
-  getOtherPlayers(
-    excludeUserId: string
-  ): Array<{ userId: string; player: LobbyPlayerState }> {
-    const result: Array<{ userId: string; player: LobbyPlayerState }> = [];
-
-    for (const [userId, player] of this.lobbyPlayers.entries()) {
-      if (userId !== excludeUserId) {
-        result.push({ userId, player });
-      }
-    }
-
-    return result;
-  }
-
-  createRoom(roomId: string, name: string, gameId: string): RoomService | null {
+  createRoom(roomId: string, request: CreateRoomRequest): RoomService | null {
     if (this.rooms.has(roomId)) {
       return null;
     }
-    // const room = new RoomService()
-    return null;
+    const room = new RoomService(
+      this.authService,
+      roomId,
+      request.name,
+      request.hostId,
+      request.gameId
+    );
+    this.rooms.set(roomId, room);
+    return room;
+  }
+
+  joinRoom(roomId: string): RoomService | null {
+    const room = this.rooms.get(roomId);
+    return room ?? null;
+  }
+
+  getRoomDatas(): RoomData[] {
+    const result: RoomData[] = [];
+    Array.from(this.rooms.values()).forEach((roomService) => {
+      result.push(roomService.toRoomData());
+    });
+    return result;
   }
 }

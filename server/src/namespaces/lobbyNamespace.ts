@@ -1,9 +1,15 @@
 import { Namespace, Server } from 'socket.io';
 import { AuthService } from '../services/authService';
 import { LobbyService } from '../services/lobbyService';
+import { RoomService } from '../services/roomService';
 import { ServerService } from '../services/serverService';
 import { Position } from '../types/common';
-import { CreateRoomRequest, Lobby, LobbyPlayerSnapshot } from '../types/lobby';
+import {
+  CreateRoomRequest,
+  Lobby as LobbyData,
+  LobbyPlayerSnapshot,
+  RoomData,
+} from '../types/lobby';
 import { generateId } from '../utils/idGenerator';
 
 export class LobbyNamespace {
@@ -24,9 +30,10 @@ export class LobbyNamespace {
       let userId: string = '';
       userId = socket.handshake.auth.userId;
 
-      let lobbyService: LobbyService | null = null;
+      let lobbyService: LobbyService | null;
+      let roomService: RoomService | null;
 
-      socket.on('lobby:list', (callback: (lobbies: Lobby[]) => void) => {
+      socket.on('lobby:list', (callback: (lobbies: LobbyData[]) => void) => {
         const lobbies = this.serverService.getLobbyDatas();
         callback(lobbies);
       });
@@ -117,7 +124,66 @@ export class LobbyNamespace {
         }
       });
 
-      socket.on('room:create', (request: CreateRoomRequest) => {});
+      socket.on(
+        'room:list',
+        (gameId: string, callback: (rooms: RoomData[]) => void) => {
+          console.log('room list');
+          if (lobbyService) {
+            console.log('room list');
+            const rooms = lobbyService.getRoomDatas();
+            console.log(rooms);
+            callback(rooms);
+          }
+        }
+      );
+
+      socket.on(
+        'room:create',
+        (
+          request: CreateRoomRequest,
+          callback: (roomId: string | null) => void
+        ) => {
+          console.log('create request');
+          if (!lobbyService) {
+            callback(null);
+            return;
+          }
+
+          const roomId = generateId();
+          const room = lobbyService.createRoom(roomId, request);
+          if (!room) {
+            callback(null);
+            return;
+          }
+
+          console.log('create success');
+          room.joinRoom(userId);
+          socket.join(`room:${roomId}`);
+          roomService = room;
+          callback(roomId);
+        }
+      );
+
+      socket.on(
+        'room:join',
+        (roomId: string, callback: (roomId: string | null) => void) => {
+          if (!lobbyService) {
+            callback(null);
+            return;
+          }
+
+          const room = lobbyService.joinRoom(roomId);
+          if (!room) {
+            callback(null);
+            return;
+          }
+
+          room.joinRoom(userId);
+          socket.join(`room:${roomId}`);
+          roomService = room;
+          callback(roomId);
+        }
+      );
 
       socket.on('disconnecting', () => {
         if (lobbyService) {

@@ -1,6 +1,8 @@
-import { RoomPlayerData } from '../types/lobby';
+import { RoomData, RoomPlayerState } from '../types/lobby';
 import { AuthService } from './authService';
 export class RoomService {
+  private roomPlayers = new Map<string, RoomPlayerState>();
+
   constructor(
     public authService: AuthService,
     public roomId: string,
@@ -9,5 +11,23 @@ export class RoomService {
     public gameId: string
   ) {}
 
-  private roomPlayers = new Map<string, RoomPlayerData>();
+  toRoomData(): RoomData {
+    return {
+      roomId: this.roomId,
+      name: this.name,
+      hostId: this.hostId,
+      gameId: this.gameId,
+      currentPlayers: this.roomPlayers.size,
+    };
+  }
+
+  joinRoom(userId: string) {
+    this.roomPlayers.set(userId, {
+      isReady: false,
+    });
+  }
+
+  leaveRoom(userId: string) {
+    this.roomPlayers.delete(userId);
+  }
 }

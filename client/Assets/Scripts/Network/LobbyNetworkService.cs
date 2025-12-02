@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ArcadeLab.Data;
+using NUnit.Framework;
 using SocketIOClient;
 using SocketIOClient.Newtonsoft.Json;
 using UnityEngine;
@@ -26,10 +27,12 @@ public class LobbyNetworkService : INetworkService
     // public event Action<string> OnRoomDeleted;
     // #endregion
 
-    // lobby browser events
+    // response callbacks
     public event Action<LobbyData[]> OnLobbyListResponse;
     public event Action<string> OnCreateLobbyResponse;
     public event Action<string> OnJoinLobbyResponse;
+    public event Action<RoomData[]> OnRoomListResponse;
+    public event Action<string> OnCreateRoomResposne;
 
     // lobby sync events
     public event Action<LobbyPlayerData[]> OnLobbyInitResponse;
@@ -168,6 +171,46 @@ public class LobbyNetworkService : INetworkService
             var lobbyPlayers = response.GetValue<LobbyPlayerData[]>(0);
             context.Post(_ => OnLobbyInitResponse?.Invoke(lobbyPlayers), null);
         });
+    }
+
+    public void RequestRoomList(string gameId)
+    {
+        Debug.Log("request room list");
+        var context = SynchronizationContext.Current;
+        m_LobbySocket.Emit("room:list", (response) =>
+        {
+            try
+            {
+                var rooms = response.GetValue<RoomData[]>(0);
+            context.Post(_ => OnRoomListResponse?.Invoke(rooms), null);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning(e.Message);
+                throw;
+            }
+            
+        }, gameId);
+    }
+
+    public class Temp
+    {
+        public string gameId;
+        public string name;
+    }
+
+    public void RequestCreateRoom(string gameId, string name)
+    {
+        Temp temp = new Temp();
+        temp.gameId = gameId;
+        temp.name = name;
+
+        var context = SynchronizationContext.Current;
+        m_LobbySocket.Emit("room:create", (response) =>
+        {
+            var roomId = response.GetValue<string>(0);
+            context.Post(_ => OnCreateRoomResposne?.Invoke(roomId), null);
+        }, temp);
     }
 
     public void EmitPlayerMoved(Position position)

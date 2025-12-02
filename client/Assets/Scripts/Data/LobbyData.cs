@@ -38,10 +38,9 @@ namespace ArcadeLab.Data
     {
         public string roomId;
         public string gameId;
-        public string roomName;
-        public string hostUserId;
+        public string name;
+        public string hostId;
         public int currentPlayers;
-        public int maxPlayers;
     }
 
     public class RoomPlayerData : PlayerBaseData

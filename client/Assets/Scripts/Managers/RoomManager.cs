@@ -6,25 +6,50 @@ using VContainer;
 
 public class RoomManager : MonoBehaviour
 {
-    // LobbyNetworkService m_LobbyService;
-    // LobbyUIManager m_LobbyUIManager;
-    // Dictionary<string, RoomData> m_Rooms;
+    [Inject] LobbyNetworkService m_LobbyService;
+    [Inject] RoomListPanel m_Panel;
 
-    // [Inject]
-    // public void Construct(LobbyUIManager lobbyUIManager, LobbyNetworkService lobbyService)
-    // {
-    //     m_Rooms = new();
-    //     m_LobbyService = lobbyService;
-    //     m_LobbyUIManager = lobbyUIManager;
+    void Start()
+    {
+        m_LobbyService.OnRoomListResponse += HandleRoomListResponse;
+        m_LobbyService.OnCreateRoomResposne += HandleCreateRoomResponse;
+        m_Panel.OnClickRefresh += GetRoomList;
+        m_Panel.OnClickCreate += CreateRoom;
+    }
 
-    //     m_LobbyService.OnRoomCreated += HandleRoomCreated;
-    //     m_LobbyService.OnRoomDeleted += HandleRoomDeleted;
-    // }
+    void OnDestroy()
+    {
+        m_LobbyService.OnRoomListResponse -= HandleRoomListResponse;
+        m_LobbyService.OnCreateRoomResposne -= HandleCreateRoomResponse;
+        m_Panel.OnClickRefresh -= GetRoomList;
+        m_Panel.OnClickCreate -= CreateRoom;
+    }
 
-    // public void CreateRoom(string gameId, string roomName, int maxPlayers)
-    // {
-    //     m_LobbyService.EmitCreateRoom(gameId, roomName, maxPlayers);
-    // }
+    public void GetRoomList(string gameId)
+    {
+        m_LobbyService.RequestRoomList(gameId);
+    }
+
+    public void CreateRoom(string gameId, string name)
+    {
+        m_LobbyService.RequestCreateRoom(gameId, name);
+    }
+
+    void HandleRoomListResponse(RoomData[] rooms)
+    {
+        m_Panel.UpdateRooms(rooms);
+    }
+
+    void HandleCreateRoomResponse(string roomId)
+    {
+        if (string.IsNullOrEmpty(roomId))
+        {
+            Debug.LogError("failed create room");
+            return;
+        }
+
+        // m_Panel.UpdateRooms
+    }
 
     // public RoomData[] GetRoomDatas(string gameId)
     // {

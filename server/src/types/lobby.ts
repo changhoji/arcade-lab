@@ -1,11 +1,11 @@
-import { PlayerState, Position } from './common';
+import { PlayerState as PlayerBaseState, Position } from './common';
 
 export interface LobbyPlayerState {
   position: Position;
   isMoving: boolean;
 }
 
-export type LobbyPlayerSnapshot = PlayerState & LobbyPlayerState;
+export type LobbyPlayerSnapshot = PlayerBaseState & LobbyPlayerState;
 
 export interface PlayerMoveData {
   userId: string;
@@ -30,28 +30,25 @@ export interface Lobby {
 
 export interface CreateRoomRequest {
   gameId: string;
-  roomName: string;
+  name: string;
   hostId: string;
 }
 
-//#region Room Types
 export interface RoomData {
   roomId: string;
+  name: string;
+  hostId: string;
   gameId: string;
-  roomName: string;
-  hostUserId: string;
   currentPlayers: number;
-  maxPlayers: number;
 }
 
-export interface RoomPlayerData {
+export interface RoomPlayerState {
   isReady: boolean;
-  isHost: boolean;
 }
+
+export type RoomPlayerSnapshot = PlayerBaseState & RoomPlayerState;
 
 export interface CreateRoomRequest {
   gameId: string;
-  roomName: string;
-  maxPlayers: number;
+  name: string;
 }
-//#endregion
