@@ -10,6 +10,7 @@ public class RoomManager : MonoBehaviour
     public event Action<RoomData[]> OnRoomListResponse;
     public event Action<RoomData> OnCreateRoomResposne;
     public event Action<JoinRoomResponse> OnJoinRoomResponse;
+    public event Action<RoomPlayerData> OnRoomJoined;
 
     public bool IsInRoom => m_CurrentRoom != null;
 
@@ -22,6 +23,7 @@ public class RoomManager : MonoBehaviour
         m_LobbyService.OnRoomListResponse += HandleRoomListResponse;
         m_LobbyService.OnCreateRoomResposne += HandleCreateRoomResponse;
         m_LobbyService.OnJoinRoomResponse += HandleJoinRoomResponse;
+        m_LobbyService.OnRoomJoined += HandleRoomJoined;
     }
 
     void OnDestroy()
@@ -29,6 +31,7 @@ public class RoomManager : MonoBehaviour
         m_LobbyService.OnRoomListResponse -= HandleRoomListResponse;
         m_LobbyService.OnCreateRoomResposne -= HandleCreateRoomResponse;
         m_LobbyService.OnJoinRoomResponse -= HandleJoinRoomResponse;
+        m_LobbyService.OnRoomJoined -= HandleRoomJoined;
     }
 
     public void GetRoomList(string gameId)
@@ -65,13 +68,8 @@ public class RoomManager : MonoBehaviour
 
     void HandleCreateRoomResponse(RoomData room)
     {
-        if (room == null)
-        {
-            Debug.LogError("failed create room");
-            return;
-        }
-
         m_CurrentRoom = room;
+        GetRoomList(room.gameId);
         OnCreateRoomResposne?.Invoke(room);
     }
 
@@ -79,5 +77,10 @@ public class RoomManager : MonoBehaviour
     {
         m_CurrentRoom = response.room;
         OnJoinRoomResponse?.Invoke(response);
+    }
+
+    void HandleRoomJoined(RoomPlayerData player)
+    {
+        OnRoomJoined?.Invoke(player);
     }
 }

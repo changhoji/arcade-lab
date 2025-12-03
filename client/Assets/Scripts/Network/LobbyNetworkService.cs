@@ -26,6 +26,9 @@ public class LobbyNetworkService : INetworkService
     public event Action<string> OnPlayerLeft;
     public event Action<string, int> OnSkinChanged;
     public event Action<string, string> OnNicknameChanged;
+    
+    // room sync events
+    public event Action<RoomPlayerData> OnRoomJoined;
 
     [Inject] AuthManager m_AuthManager;
     SocketIOUnity m_LobbySocket;
@@ -98,6 +101,13 @@ public class LobbyNetworkService : INetworkService
             var nickname = response.GetValue<string>(1);
 
             OnNicknameChanged?.Invoke(userId, nickname);
+        });
+
+        m_LobbySocket.OnUnityThread("room:joined", response =>
+        {
+            var player = response.GetValue<RoomPlayerData>();
+
+            OnRoomJoined?.Invoke(player);
         });
     }
 

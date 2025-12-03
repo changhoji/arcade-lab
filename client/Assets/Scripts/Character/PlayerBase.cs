@@ -18,6 +18,7 @@ public class PlayerBase : MonoBehaviour
     [SerializeField] PlayerLibrary m_PlayerLibrary;
     [SerializeField] TextMeshPro m_NicknameText;
 
+    AuthManager m_AuthManager;
     SpriteLibrary m_SpriteLibrary;
 
     public void Init(string userId, string nickname, int skinIndex, bool isOwner)
@@ -29,6 +30,7 @@ public class PlayerBase : MonoBehaviour
         if (IsOwner)
         {
             LocalPlayer = this;
+            m_AuthManager = FindAnyObjectByType<AuthManager>();
         }
     }
 
@@ -40,6 +42,10 @@ public class PlayerBase : MonoBehaviour
     public void SetNickname(string nickname)
     {
         Nickname = nickname;
+        if (m_AuthManager)
+        {
+            m_AuthManager.Player.nickname = nickname;    
+        }
         m_NicknameText.text = nickname;
         OnChangeNickname?.Invoke(nickname);
     }
@@ -47,6 +53,10 @@ public class PlayerBase : MonoBehaviour
     public void SetSkinIndex(int skinIndex)
     {
         SkinIndex = skinIndex;
+        if (m_AuthManager)
+        {
+            m_AuthManager.Player.skinIndex = skinIndex;    
+        }
         m_SpriteLibrary.spriteLibraryAsset = m_PlayerLibrary.Library[skinIndex];
         OnChangeSkin?.Invoke(skinIndex);
     }

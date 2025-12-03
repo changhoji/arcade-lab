@@ -12,6 +12,8 @@ public class CurrentRoomPanel : UIPanelBase
     void Start()
     {
         m_RoomManager.OnCreateRoomResposne += HandleCreateRoomResponse;
+        m_RoomManager.OnJoinRoomResponse += HandleJoinRoomResponse;
+        m_RoomManager.OnRoomJoined += HandleRoomJoined;
         m_Players = GetComponentsInChildren<RoomPlayerItem>();
 
         gameObject.SetActive(false);
@@ -20,15 +22,12 @@ public class CurrentRoomPanel : UIPanelBase
     void OnDestroy()
     {
         m_RoomManager.OnCreateRoomResposne -= HandleCreateRoomResponse;
+        m_RoomManager.OnJoinRoomResponse -= HandleJoinRoomResponse;
+        m_RoomManager.OnRoomJoined -= HandleRoomJoined;
     }
    
     void HandleCreateRoomResponse(RoomData room)
     {
-        if (room == null)
-        {
-            return;
-        }
-
         m_Players[0].SetData(new RoomPlayerData
         {
             userId = m_AuthManager.UserId,
@@ -37,5 +36,22 @@ public class CurrentRoomPanel : UIPanelBase
             isHost = true,
             isReady = false
         });
+    }
+
+    void HandleJoinRoomResponse(JoinRoomResponse response)
+    {
+        var players = response.players;
+        Debug.Log(players.Length);
+        for (int i = 0; i < players.Length; i++)
+        {
+            var player = players[i];
+            m_Players[i].SetData(player);
+        }
+    }
+
+    void HandleRoomJoined(RoomPlayerData player)
+    {
+        Debug.Log("handle room joined in current room panel");
+        m_Players[1].SetData(player);
     }
 }

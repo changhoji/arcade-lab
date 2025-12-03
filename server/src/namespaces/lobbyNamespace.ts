@@ -46,7 +46,6 @@ export class LobbyNamespace {
         }
       );
 
-      // 여기랑 join이랑 클라이언트 측에서 널체킹하는거 매니저까지 안가게
       socket.on(
         'lobby:create',
         (name: string, callback: (result: NetworkResult<string>) => void) => {
@@ -167,14 +166,26 @@ export class LobbyNamespace {
 
       socket.on(
         'room:list',
-        (gameId: string, callback: (rooms: RoomData[]) => void) => {
+        (
+          gameId: string,
+          callback: (result: NetworkResult<RoomData[]>) => void
+        ) => {
           console.log('room list');
-          if (lobbyService) {
-            console.log('room list');
-            const rooms = lobbyService.getRoomDatas();
-            console.log(rooms);
-            callback(rooms);
+          if (!lobbyService) {
+            callback({
+              success: false,
+              data: null,
+              error: 'cannot find lobby',
+            });
+            return;
           }
+
+          const rooms = lobbyService.getRoomDatas();
+          callback({
+            success: true,
+            data: rooms,
+            error: null,
+          });
         }
       );
 
@@ -244,6 +255,8 @@ export class LobbyNamespace {
           room.joinRoom(userId);
           socket.join(`room:${roomId}`);
           roomService = room;
+          const player = roomService.getPlayerSnapshot(userId);
+          console.log(roomService.getPlayerSnapshots());
           callback({
             success: true,
             data: {
@@ -252,6 +265,7 @@ export class LobbyNamespace {
             },
             error: null,
           });
+          socket.to(`room:${roomId}`).emit('room:joined', player);
         }
       );
 

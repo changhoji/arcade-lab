@@ -7,18 +7,20 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] Canvas m_LobbyCanvas;
     [SerializeField] WardrobePanel m_WardrobePanel;
     [SerializeField] RoomListPanel m_RoomListPanel;
-    [Inject] CurrentRoomPanel m_CurrentRoomPanel;
+    [SerializeField] CurrentRoomPanel m_CurrentRoomPanel;
 
     [Inject] RoomManager m_RoomManager;
 
     void Start()
     {
-        m_RoomManager.OnCreateRoomResposne += HandleCreateRoomResponse;
+        m_RoomManager.OnCreateRoomResposne += (data) => ShowCurrentRoomPanel();
+        m_RoomManager.OnJoinRoomResponse += (data) => ShowCurrentRoomPanel();
     }
 
     void OnDestroy()
     {
-        m_RoomManager.OnCreateRoomResposne -= HandleCreateRoomResponse;
+        m_RoomManager.OnCreateRoomResposne -= (data) => ShowCurrentRoomPanel();
+        m_RoomManager.OnJoinRoomResponse -= (data) => ShowCurrentRoomPanel();
     }
 
     public void ShowWardrobePanel()
@@ -45,13 +47,9 @@ public class LobbyUIManager : MonoBehaviour
         }
     }
 
-    void HandleCreateRoomResponse(RoomData room)
+    void ShowCurrentRoomPanel()
     {
-        if (room == null)
-        {
-            return;
-        }
-
         m_CurrentRoomPanel.Show();
+        m_RoomManager.GetRoomList("color-lab");
     }
 }

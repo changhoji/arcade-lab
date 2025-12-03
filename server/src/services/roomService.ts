@@ -44,6 +44,13 @@ export class RoomService {
         ...player,
       });
     });
-    return [];
+    return result;
+  }
+
+  getPlayerSnapshot(userId: string): RoomPlayerSnapshot {
+    return {
+      ...this.authService.getUser(userId)!,
+      ...this.roomPlayers.get(userId)!,
+    };
   }
 }
