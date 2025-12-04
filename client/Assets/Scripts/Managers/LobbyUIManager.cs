@@ -40,6 +40,7 @@ public class LobbyUIManager : MonoBehaviour
     {
         m_RoomListPanel.SetGameConfig(config);
         m_RoomListPanel.Show();
+        m_RoomManager.GetRoomList("color-lab");
 
         if (m_RoomManager.IsInRoom)
         {

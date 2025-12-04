@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using ArcadeLab.Data;
@@ -17,6 +18,7 @@ public class LobbyNetworkService : INetworkService
     public event Action<RoomData[]> OnRoomListResponse;
     public event Action<RoomData> OnCreateRoomResposne;
     public event Action<JoinRoomResponse> OnJoinRoomResponse;
+    public event Action OnLeaveRoomResponse;
 
     // lobby sync events
     public event Action<LobbyPlayerData[]> OnLobbyInitResponse;
@@ -29,6 +31,7 @@ public class LobbyNetworkService : INetworkService
     
     // room sync events
     public event Action<RoomPlayerData> OnRoomJoined;
+    public event Action<string> OnRoomLeft;
 
     [Inject] AuthManager m_AuthManager;
     SocketIOUnity m_LobbySocket;
@@ -108,6 +111,14 @@ public class LobbyNetworkService : INetworkService
             var player = response.GetValue<RoomPlayerData>();
 
             OnRoomJoined?.Invoke(player);
+        });
+
+        m_LobbySocket.OnUnityThread("room:left", response =>
+        {
+            var userId = response.GetValue<string>();
+            Debug.Log("left received");
+
+            OnRoomLeft?.Invoke(userId);
         });
     }
 
@@ -246,6 +257,23 @@ public class LobbyNetworkService : INetworkService
                 Debug.LogError($"Room join failed: {result.error}");
             }
         }, roomId);
+    }
+
+    public void RequestLeaveRoom()
+    {
+        var context = SynchronizationContext.Current;
+        m_LobbySocket.Emit("room:leave", (response) =>
+        {
+            var result = response.GetValue<NetworkResult<object>>();
+            if (result.success)
+            {
+                context.Post(_ => OnLeaveRoomResponse?.Invoke(), null);
+            }
+            else
+            {
+                Debug.LogError($"Room leave failed: {result.error}");
+            }
+        });
     }
 
     public void EmitPlayerMoved(Position position)

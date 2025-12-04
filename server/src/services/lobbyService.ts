@@ -94,6 +94,10 @@ export class LobbyService {
     return room;
   }
 
+  removeRoom(roomId: string) {
+    this.rooms.delete(roomId);
+  }
+
   joinRoom(roomId: string): RoomService | null {
     const room = this.rooms.get(roomId);
     return room ?? null;

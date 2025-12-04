@@ -10,7 +10,9 @@ public class RoomManager : MonoBehaviour
     public event Action<RoomData[]> OnRoomListResponse;
     public event Action<RoomData> OnCreateRoomResposne;
     public event Action<JoinRoomResponse> OnJoinRoomResponse;
+    public event Action OnLeaveRoomResponse;
     public event Action<RoomPlayerData> OnRoomJoined;
+    public event Action<string> OnRoomLeft; 
 
     public bool IsInRoom => m_CurrentRoom != null;
 
@@ -23,7 +25,10 @@ public class RoomManager : MonoBehaviour
         m_LobbyService.OnRoomListResponse += HandleRoomListResponse;
         m_LobbyService.OnCreateRoomResposne += HandleCreateRoomResponse;
         m_LobbyService.OnJoinRoomResponse += HandleJoinRoomResponse;
+        m_LobbyService.OnLeaveRoomResponse += HandleLeaveRoomResponse;
         m_LobbyService.OnRoomJoined += HandleRoomJoined;
+        m_LobbyService.OnRoomLeft += HandleRoomLeft;
+
     }
 
     void OnDestroy()
@@ -31,7 +36,9 @@ public class RoomManager : MonoBehaviour
         m_LobbyService.OnRoomListResponse -= HandleRoomListResponse;
         m_LobbyService.OnCreateRoomResposne -= HandleCreateRoomResponse;
         m_LobbyService.OnJoinRoomResponse -= HandleJoinRoomResponse;
+        m_LobbyService.OnLeaveRoomResponse -= HandleLeaveRoomResponse;
         m_LobbyService.OnRoomJoined -= HandleRoomJoined;
+        m_LobbyService.OnRoomLeft -= HandleRoomLeft;
     }
 
     public void GetRoomList(string gameId)
@@ -61,6 +68,22 @@ public class RoomManager : MonoBehaviour
         m_LobbyService.RequestJoinRoom(roomId);
     }
 
+    public void LeaveRoom()
+    {
+        if (m_CurrentRoom == null)
+        {
+            Debug.LogWarning("player is not in a room");
+            return;
+        }
+
+        m_LobbyService.RequestLeaveRoom();
+    }
+
+    public void ChangeIsReady()
+    {
+        
+    }
+
     void HandleRoomListResponse(RoomData[] rooms)
     {
         OnRoomListResponse?.Invoke(rooms);
@@ -79,8 +102,20 @@ public class RoomManager : MonoBehaviour
         OnJoinRoomResponse?.Invoke(response);
     }
 
+    void HandleLeaveRoomResponse()
+    {
+        m_CurrentRoom = null;
+        OnLeaveRoomResponse?.Invoke();
+        m_LobbyService.RequestRoomList("color-lab");
+    }
+
     void HandleRoomJoined(RoomPlayerData player)
     {
         OnRoomJoined?.Invoke(player);
+    }
+
+    void HandleRoomLeft(string userId)
+    {
+        OnRoomLeft?.Invoke(userId);
     }
 }

@@ -269,6 +269,43 @@ export class LobbyNamespace {
         }
       );
 
+      socket.on(
+        'room:leave',
+        (callback: (result: NetworkResult<void>) => void) => {
+          if (!lobbyService) {
+            callback({
+              success: false,
+              data: null,
+              error: 'cannot find lobby',
+            });
+            return;
+          }
+
+          if (!roomService) {
+            callback({
+              success: false,
+              data: null,
+              error: 'cannot find room',
+            });
+            return;
+          }
+
+          roomService.leaveRoom(userId);
+          callback({
+            success: true,
+            data: null,
+            error: null,
+          });
+
+          socket.to(`room:${roomService.roomId}`).emit('room:left', userId);
+          socket.leave(`room:${roomService.roomId}`);
+          if (roomService.roomPlayers.size === 0) {
+            lobbyService.removeRoom(roomService.roomId);
+          }
+          roomService = null;
+        }
+      );
+
       socket.on('disconnecting', () => {
         if (lobbyService) {
           lobbyService.leaveLobby(userId);

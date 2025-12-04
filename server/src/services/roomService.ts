@@ -1,7 +1,7 @@
 import { AuthService } from '@/services/authService';
 import { RoomData, RoomPlayerSnapshot, RoomPlayerState } from '@/types/lobby';
 export class RoomService {
-  private roomPlayers = new Map<string, RoomPlayerState>();
+  public roomPlayers = new Map<string, RoomPlayerState>();
 
   constructor(
     public authService: AuthService,
