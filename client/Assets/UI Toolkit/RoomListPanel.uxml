@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/RoomLlistPanel.uss?fileID=7433441132597879392&amp;guid=c57e5a084b2bf4921990b9fc1eff33a4&amp;type=3#RoomLlistPanel" />
+    <Style src="project://database/Assets/UI%20Toolkit/NewUSSFile.uss?fileID=7433441132597879392&amp;guid=73340a19ca4ba494d86eb4ad25f1a894&amp;type=3#NewUSSFile" />
+    <ui:VisualElement class="room-list-panel">
+        <ui:VisualElement class="header-container">
+            <ui:Label text="Game Rooms" class="panel-title" />
+            <ui:Button name="refresh-button" text="↻" class="refresh-button" />
+        </ui:VisualElement>
+        <ui:VisualElement class="create-room-container">
+            <ui:TextField name="room-name-input" placeholder-text="Room Name" class="room-name-input" />
+            <ui:Button name="create-button" text="Create Room" class="create-button" />
+        </ui:VisualElement>
+        <ui:VisualElement class="table-header">
+            <ui:Label text="Room Name" class="column column-name" />
+            <ui:Label text="Players" class="column column-players" />
+            <ui:Label class="column column-action" />
+        </ui:VisualElement>
+        <ui:ScrollView name="room-list-scroll" class="room-list-scroll" />
+    </ui:VisualElement>
+</ui:UXML>

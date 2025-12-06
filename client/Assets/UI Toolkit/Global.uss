@@ -1,0 +1,17 @@
+Button {
+    background-image: url("project://database/Assets/Art/Sprites/UI/Button.png?fileID=2800000&guid=15450934c8aa64b478fa207d1252f406&type=3#Button");
+    -unity-slice-left: 6;
+    -unity-slice-top: 6;
+    -unity-slice-right: 6;
+    -unity-slice-bottom: 6;
+    border-radius: 0;
+}
+
+.panel {
+    width: 100%;
+    height: 100%;
+}
+
+* {
+    -unity-font-definition: url("project://database/Assets/Fonts/NanumSquareRoundB.ttf?fileID=12800000&guid=b528bf039195949f88ff8d0f5f2cf932&type=3#NanumSquareRoundB");
+}

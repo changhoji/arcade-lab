@@ -1,0 +1,82 @@
+.lobby-browser {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+}
+
+.header-container {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(50, 50, 50);
+    padding: 10px;
+    border-bottom-width: 2px;
+    border-bottom-color: rgb(100, 100, 100);
+    margin-bottom: 5px;
+}
+
+/* 헤더 스타일 */
+.header-row {
+    flex-direction: row;
+    flex-grow: 1; /* 남은 공간을 모두 차지 */
+}
+
+/* 공통 컬럼 스타일 */
+.column {
+    -unity-text-align: middle-left;
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+}
+
+/* 각 컬럼의 너비 */
+.column-name {
+    flex-grow: 2;
+    min-width: 120px;
+}
+
+.column-host {
+    flex-grow: 1;
+    min-width: 100px;
+}
+
+.column-players {
+    flex-grow: 1;
+    min-width: 80px;
+}
+
+/* 스크롤뷰 스타일 */
+.lobby-list-scroll {
+    flex-grow: 1;
+}
+
+/* 데이터 행 스타일 (C#에서 추가할 때 사용) */
+.data-row {
+    flex-direction: row;
+    padding: 10px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(70, 70, 70);
+    background-color: rgb(40, 40, 40);
+}
+
+.data-row:hover {
+    background-color: rgb(60, 60, 60);
+}
+
+/* 데이터 행의 텍스트 스타일 */
+.data-row .column {
+    -unity-text-align: middle-left;
+    font-size: 12px;
+    color: rgb(220, 220, 220);
+}
+
+.refresh-button {
+    width: 40px;
+    height: 30px;
+    margin-left: 10px;
+    background-color: rgb(70, 70, 70);
+    /* border-radius: 4px; */
+    font-size: 18px;
+}
+
+.refresh-button:hover {
+    background-color: rgb(90, 90, 90);
+}

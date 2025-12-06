@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/NewUSSFile.uss?fileID=7433441132597879392&amp;guid=73340a19ca4ba494d86eb4ad25f1a894&amp;type=3#NewUSSFile" />
+    <Style src="project://database/Assets/UI%20Toolkit/LobbyBrowserPanel.uss?fileID=7433441132597879392&amp;guid=1988daac93c904354a7f8c40a7c20cea&amp;type=3#LobbyBrowserPanel" />
+    <ui:VisualElement class="lobby-browser">
+        <ui:VisualElement class="header-container">
+            <ui:VisualElement name="VisualElement" class="header-row">
+                <ui:Label text="이름" class="column column-name" />
+                <ui:Label text="방장" class="column column-host" />
+                <ui:Label text="인원" class="column column-players" />
+            </ui:VisualElement>
+            <ui:Button text="⟳" name="refresh-lobby-button" class="refresh-button" style="position: absolute; right: 10px;" />
+        </ui:VisualElement>
+        <ui:ScrollView name="lobby-list-scroll" class="lobby-list-scroll" />
+        <ui:VisualElement name="VisualElement" class="footer-row">
+            <ui:TextField name="lobby-name-input" placeholder-text="방 이름 입력" class="lobby-name-input" />
+            <ui:Button text="방 만들기" name="create-lobby-button" class="create-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

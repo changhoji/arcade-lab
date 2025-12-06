@@ -2,52 +2,85 @@ using System;
 using System.Collections.Generic;
 using ArcadeLab.Data;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using VContainer;
 
 public class LobbyBrowserPanel : UIPanelBase
 {
-    [SerializeField] Transform m_ScrollContent;
-    [SerializeField] GameObject m_LobbyItemPrefab;
-    [SerializeField] TMP_InputField m_NameInput;
-    [SerializeField] Button m_CreateButton;
-    [SerializeField] Button m_RefreshButton;
-
     [Inject] LobbyBrowserManager m_Manager;
 
-    List<LobbyItem> m_LobbyItems = new();
+    ScrollView m_ScrollView;
+    TextField m_NameInput;
+    Button m_CreateButton;
+    Button m_RefreshButton;
+
+    List<VisualElement> m_LobbyRows = new();
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        m_ScrollView = m_Root.Q<ScrollView>("lobby-list-scroll");
+        m_NameInput = m_Root.Q<TextField>("lobby-name-input");
+        m_CreateButton = m_Root.Q<Button>("create-lobby-button");
+        m_RefreshButton = m_Root.Q<Button>("refresh-lobby-button");
+    }
 
     void Start()
     {
         m_Manager.OnLobbyListResponse += UpdateLobbies;
 
-        m_CreateButton.onClick.AddListener(() => m_Manager.CreateLobby(m_NameInput.text));
-        m_RefreshButton.onClick.AddListener(() => m_Manager.GetLobbyList());
+        m_CreateButton.clicked += () => m_Manager.CreateLobby(m_NameInput.text);
     }
 
     void OnDestroy()
     {
         m_Manager.OnLobbyListResponse -= UpdateLobbies;
+
+        m_CreateButton.clicked -= () => m_Manager.CreateLobby(m_NameInput.text);
     }
 
     public void UpdateLobbies(LobbyData[] lobbies)
     {
-        foreach (var lobbyItem in m_LobbyItems)
-        {
-            Destroy(lobbyItem.gameObject);
-        }
-        m_LobbyItems.Clear();
+        m_ScrollView.Clear();
+        m_LobbyRows.Clear();
 
-        for (int i = 0; i < lobbies.Length; i++)
+        foreach (var lobby in lobbies)
         {
-            var lobbyId = lobbies[i].lobbyId;
-            var lobbyObject = Instantiate(m_LobbyItemPrefab, m_ScrollContent);
-            var lobbyItem = lobbyObject.GetComponent<LobbyItem>();
-            lobbyItem.Init(lobbies[i]);
-            lobbyItem.OnClickJoin += (lobbyId) => m_Manager.JoinLobby(lobbyId);
-            lobbyItem.transform.Translate(new Vector3(0, -50*i, 0));
-            m_LobbyItems.Add(lobbyItem);
+            var row = CreateLobbyRow(lobby);
+            m_ScrollView.Add(row);
+            m_LobbyRows.Add(row);
         }
+    }
+
+    VisualElement CreateLobbyRow(LobbyData lobby)
+    {
+        var row = new VisualElement();
+        row.AddToClassList("data-row");
+
+        var nameLabel = new Label(lobby.name);
+        nameLabel.AddToClassList("column");
+        nameLabel.AddToClassList("column-name");
+
+        var hostLabel = new Label("-");
+        hostLabel.AddToClassList("column");
+        hostLabel.AddToClassList("column-host");
+
+        var playersLabel = new Label($"{lobby.currentPlayers}");
+        playersLabel.AddToClassList("column");
+        playersLabel.AddToClassList("column-players");
+
+        row.Add(nameLabel);
+        row.Add(hostLabel);
+        row.Add(playersLabel);
+
+        row.RegisterCallback<MouseUpEvent>(evt =>
+        {
+            m_Manager.JoinLobby(lobby.lobbyId);
+        });
+
+        return row;
     }
 }

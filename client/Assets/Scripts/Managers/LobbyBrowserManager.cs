@@ -64,6 +64,7 @@ public class LobbyBrowserManager : MonoBehaviour
             m_Lobbies.Add(lobby.lobbyId, lobby);
         }
 
+        Debug.Log("LobbyBrowserManager.LobbyListResponse");
         OnLobbyListResponse?.Invoke(lobbies);
     }
 

@@ -1,15 +1,28 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using VContainer;
 
 public class AuthPanel : UIPanelBase
 {
-    [SerializeField] Button m_GuestButton;
     [Inject] AuthManager m_Manager;
+
+    Button m_GuestButton;
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        m_GuestButton = m_Root.Q<Button>("login-button");
+    }
 
     void Start()
     {
-        m_GuestButton.onClick.AddListener(OnClickGuest);
+        m_GuestButton.clicked += OnClickGuest;
+    }
+
+    void OnDestroy()
+    {
+        m_GuestButton.clicked -= OnClickGuest;
     }
 
     void OnClickGuest()

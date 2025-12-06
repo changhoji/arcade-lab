@@ -4,7 +4,6 @@ using VContainer;
 
 public class LobbyUIManager : MonoBehaviour
 {
-    [SerializeField] Canvas m_LobbyCanvas;
     [SerializeField] WardrobePanel m_WardrobePanel;
     [SerializeField] RoomListPanel m_RoomListPanel;
     [SerializeField] CurrentRoomPanel m_CurrentRoomPanel;
@@ -50,6 +49,7 @@ public class LobbyUIManager : MonoBehaviour
 
     void ShowCurrentRoomPanel()
     {
+        m_RoomListPanel.Hide();
         m_CurrentRoomPanel.Show();
         m_RoomManager.GetRoomList("color-lab");
     }

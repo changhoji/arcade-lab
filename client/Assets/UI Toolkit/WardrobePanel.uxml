@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/WardrobePanel.uss?fileID=7433441132597879392&amp;guid=ec7837931dcde465c9bbb74110c936b2&amp;type=3#WardrobePanel" />
+    <Style src="project://database/Assets/UI%20Toolkit/NewUSSFile.uss?fileID=7433441132597879392&amp;guid=73340a19ca4ba494d86eb4ad25f1a894&amp;type=3#NewUSSFile" />
+    <ui:VisualElement class="wardrobe-panel" style="width: 775px; height: 450px;">
+        <ui:Label text="Character Customization" class="title" />
+        <ui:VisualElement class="skin-selector">
+            <ui:Button name="prev-button" text="&lt;" class="arrow-button" />
+            <ui:VisualElement class="skin-preview-container">
+                <ui:VisualElement name="skin-0" class="skin-preview skin-active" />
+                <ui:VisualElement name="skin-1" class="skin-preview skin-inactive" />
+                <ui:VisualElement name="skin-2" class="skin-preview skin-inactive" />
+                <ui:VisualElement name="skin-3" class="skin-preview skin-inactive" />
+            </ui:VisualElement>
+            <ui:Button name="next-button" text="&gt;" class="arrow-button" />
+        </ui:VisualElement>
+        <ui:VisualElement class="nickname-container">
+            <ui:Label text="Nickname:" />
+            <ui:TextField name="nickname-input" class="nickname-input" />
+        </ui:VisualElement>
+        <ui:Label text="Use Arrow Keys to navigate" class="hint-text" />
+    </ui:VisualElement>
+</ui:UXML>

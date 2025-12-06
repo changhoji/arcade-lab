@@ -1,0 +1,38 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/CurrentRoomPanel.uss?fileID=7433441132597879392&amp;guid=c93e7855a1d514418bc3d92767cce529&amp;type=3#CurrentRoomPanel" />
+    <Style src="project://database/Assets/UI%20Toolkit/NewUSSFile.uss?fileID=7433441132597879392&amp;guid=73340a19ca4ba494d86eb4ad25f1a894&amp;type=3#NewUSSFile" />
+    <ui:VisualElement class="current-room-panel">
+        <!-- 헤더 -->
+        <ui:VisualElement class="header">
+            <ui:Label text="Current Room" class="room-title" />
+        </ui:VisualElement>
+        
+        <!-- 플레이어 슬롯들 -->
+        <ui:VisualElement class="players-container">
+            <!-- Player 1 Slot -->
+            <ui:VisualElement name="player-slot-0" class="player-slot">
+                <ui:Label name="player-nickname-0" text="Empty" class="player-nickname" />
+                <ui:VisualElement class="player-status">
+                    <ui:Label name="player-host-0" text="HOST" class="host-badge" style="display: none;" />
+                    <ui:Label name="player-ready-0" text="" class="ready-badge" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            
+            <!-- Player 2 Slot -->
+            <ui:VisualElement name="player-slot-1" class="player-slot">
+                <ui:Label name="player-nickname-1" text="Empty" class="player-nickname" />
+                <ui:VisualElement class="player-status">
+                    <ui:Label name="player-host-1" text="HOST" class="host-badge" style="display: none;" />
+                    <ui:Label name="player-ready-1" text="" class="ready-badge" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+        <!-- 버튼들 -->
+        <ui:VisualElement class="buttons-container">
+            <ui:Button name="ready-button" text="Ready" class="room-button ready-button" />
+            <ui:Button name="start-button" text="Start Game" class="room-button start-button" style="display: none;" />
+            <ui:Button name="leave-button" text="Leave Room" class="room-button leave-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/NewUSSFile.uss?fileID=7433441132597879392&amp;guid=73340a19ca4ba494d86eb4ad25f1a894&amp;type=3#NewUSSFile" />
+    <ui:VisualElement name="auth-panel" style="flex-grow: 1; justify-content: center; align-items: center;">
+        <ui:Button text="Button" name="login-button" />
+    </ui:VisualElement>
+</ui:UXML>

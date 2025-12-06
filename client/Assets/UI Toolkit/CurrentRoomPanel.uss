@@ -1,0 +1,128 @@
+.current-room-panel {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.85);
+    justify-content: space-between;
+}
+
+.header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom-width: 2px;
+    border-bottom-color: rgb(100, 100, 100);
+}
+
+.room-title {
+    font-size: 24px;
+    color: white;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.players-container {
+    flex-grow: 1;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.player-slot {
+    height: 80px;
+    margin: 10px 0;
+    padding: 15px 20px;
+    background-color: rgb(40, 40, 40);
+    border-width: 2px;
+    border-color: rgb(80, 80, 80);
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player-slot.empty {
+    opacity: 0.5;
+    border-color: rgb(60, 60, 60);
+}
+
+.player-slot.occupied {
+    border-color: rgb(100, 150, 100);
+}
+
+.player-nickname {
+    font-size: 18px;
+    color: white;
+    -unity-font-style: bold;
+}
+
+.player-status {
+    flex-direction: row;
+    align-items: center;
+}
+
+.host-badge {
+    padding: 4px 8px;
+    margin-right: 10px;
+    background-color: rgb(200, 150, 50);
+    color: rgb(50, 50, 50);
+    font-size: 12px;
+    -unity-font-style: bold;
+}
+
+.ready-badge {
+    padding: 4px 8px;
+    font-size: 14px;
+    -unity-font-style: bold;
+}
+
+.ready-badge.ready {
+    background-color: rgb(80, 180, 80);
+    color: white;
+}
+
+.ready-badge.not-ready {
+    background-color: rgb(180, 80, 80);
+    color: white;
+}
+
+.buttons-container {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top-width: 2px;
+    border-top-color: rgb(100, 100, 100);
+}
+
+.room-button {
+    width: 150px;
+    height: 45px;
+    margin: 0 10px;
+    font-size: 16px;
+    -unity-font-style: bold;
+}
+
+.ready-button {
+    background-color: rgb(60, 140, 200);
+    color: white;
+}
+
+.ready-button:hover {
+    background-color: rgb(80, 160, 220);
+}
+
+.start-button {
+    background-color: rgb(80, 180, 80);
+    color: white;
+}
+
+.start-button:hover {
+    background-color: rgb(100, 200, 100);
+}
+
+.leave-button {
+    background-color: rgb(180, 80, 80);
+    color: white;
+}
+
+.leave-button:hover {
+    background-color: rgb(200, 100, 100);
+}

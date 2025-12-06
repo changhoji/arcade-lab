@@ -3,57 +3,123 @@ using System.Collections.Generic;
 using ArcadeLab.Data;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 using VContainer;
 
 public class RoomListPanel : UIPanelBase
 {
-    [SerializeField] Transform m_ScrollContent;
-    [SerializeField] GameObject m_RoomItemPrefab;
-    [SerializeField] TMP_InputField m_NameInput;
-    [SerializeField] Button m_CreateButton;
-    [SerializeField] Button m_RefreshButton;
+    [Inject] RoomManager m_RoomManager;
 
-    [Inject] RoomManager m_Manager;
+    ScrollView m_ScrollView;
+    TextField m_NameInput;
+    Button m_CreateButton;
+    Button m_RefreshButton;
 
-    List<RoomItem> m_RoomItems = new();
+    List<VisualElement> m_RoomRows = new();
     GameConfig m_GameConfig;
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        m_ScrollView = m_Root.Q<ScrollView>("room-list-scroll");
+        m_NameInput = m_Root.Q<TextField>("room-name-input");
+        m_CreateButton = m_Root.Q<Button>("create-button");
+        m_RefreshButton = m_Root.Q<Button>("refresh-button");
+    }
 
     void Start()
     {
-        m_Manager.OnRoomListResponse += UpdateRooms;
-        m_CreateButton.onClick.AddListener(() => m_Manager.CreateRoom(m_GameConfig.gameId, m_NameInput.text));
-        m_RefreshButton.onClick.AddListener(() => m_Manager.GetRoomList(m_GameConfig.gameId));
-        gameObject.SetActive(false);
+        m_RoomManager.OnRoomListResponse += UpdateRooms;
+
+        m_CreateButton.clicked += () => 
+        {
+            if (!string.IsNullOrEmpty(m_NameInput.text) && m_GameConfig != null)
+            {
+                m_RoomManager.CreateRoom(m_GameConfig.gameId, m_NameInput.text);
+                m_NameInput.value = ""; // 입력 필드 초기화
+            }
+        };
+
+        m_RefreshButton.clicked += () => 
+        {
+            if (m_GameConfig != null)
+            {
+                m_RoomManager.GetRoomList(m_GameConfig.gameId);
+            }
+        };
+
+        Hide();
     }
 
     void OnDestroy()
     {
-        m_Manager.OnRoomListResponse -= UpdateRooms;
+        m_RoomManager.OnRoomListResponse -= UpdateRooms;
     }
 
     public void UpdateRooms(RoomData[] rooms)
     {
-        foreach (var roomItem in m_RoomItems)
-        {
-            Destroy(roomItem.gameObject);
-        }
-        m_RoomItems.Clear();
+        m_ScrollView.Clear();
+        m_RoomRows.Clear();
 
-        for (int i = 0; i < rooms.Length; i++)
+        foreach (var room in rooms)
         {
-            var roomId = rooms[i].roomId;
-            var roomObject = Instantiate(m_RoomItemPrefab, m_ScrollContent);
-            var roomItem = roomObject.GetComponent<RoomItem>();
-            roomItem.Init(rooms[i], m_GameConfig);
-            roomItem.OnClickJoin += (roomId) => m_Manager.JoinRoom(roomId);
-            roomItem.transform.Translate(new Vector3(0, -50*i, 0));
-            m_RoomItems.Add(roomItem);
+            var row = CreateRoomRow(room);
+            m_ScrollView.Add(row);
+            m_RoomRows.Add(row);
         }
+    }
+
+    VisualElement CreateRoomRow(RoomData room)
+    {
+        var row = new VisualElement();
+        row.AddToClassList("room-row");
+
+        // 방 이름
+        var nameLabel = new Label(room.name);
+        nameLabel.AddToClassList("column");
+        nameLabel.AddToClassList("column-name");
+
+        // 플레이어 수
+        var playersLabel = new Label($"{room.currentPlayers} / {room.maxPlayers}");
+        playersLabel.AddToClassList("column");
+        playersLabel.AddToClassList("column-players");
+
+        // Join 버튼
+        var joinButton = new Button(() => m_RoomManager.JoinRoom(room.roomId));
+        joinButton.text = "Join";
+        joinButton.AddToClassList("join-button");
+        
+        // 방이 꽉 찼으면 버튼 비활성화
+        if (room.currentPlayers >= room.maxPlayers)
+        {
+            joinButton.SetEnabled(false);
+        }
+
+        var actionContainer = new VisualElement();
+        actionContainer.AddToClassList("column");
+        actionContainer.AddToClassList("column-action");
+        actionContainer.Add(joinButton);
+
+        row.Add(nameLabel);
+        row.Add(playersLabel);
+        row.Add(actionContainer);
+
+        return row;
     }
 
     public void SetGameConfig(GameConfig config)
     {
         m_GameConfig = config;
+    }
+
+    public override void Show()
+    {
+        base.Show();
+        
+        if (m_GameConfig != null)
+        {
+            m_RoomManager.GetRoomList(m_GameConfig.gameId);
+        }
     }
 }
