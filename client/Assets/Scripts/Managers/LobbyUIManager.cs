@@ -12,14 +12,16 @@ public class LobbyUIManager : MonoBehaviour
 
     void Start()
     {
-        m_RoomManager.OnCreateRoomResposne += (data) => ShowCurrentRoomPanel();
-        m_RoomManager.OnJoinRoomResponse += (data) => ShowCurrentRoomPanel();
+        m_RoomManager.OnCreateRoomResposne += (_) => ShowCurrentRoomPanel();
+        m_RoomManager.OnJoinRoomResponse += (_) => ShowCurrentRoomPanel();
+        m_CurrentRoomPanel.OnHidePanel += ShowRoomListPanel;
     }
 
     void OnDestroy()
     {
-        m_RoomManager.OnCreateRoomResposne -= (data) => ShowCurrentRoomPanel();
-        m_RoomManager.OnJoinRoomResponse -= (data) => ShowCurrentRoomPanel();
+        m_RoomManager.OnCreateRoomResposne -= (_) => ShowCurrentRoomPanel();
+        m_RoomManager.OnJoinRoomResponse -= (_) => ShowCurrentRoomPanel();
+        m_CurrentRoomPanel.OnHidePanel -= ShowRoomListPanel;
     }
 
     public void ShowWardrobePanel()
@@ -35,22 +37,28 @@ public class LobbyUIManager : MonoBehaviour
         }
     }
 
-    public void ShowRoomListPanel(GameConfig config)
+    public void UseGamePortal(GameConfig config)
     {
         m_RoomListPanel.SetGameConfig(config);
-        m_RoomListPanel.Show();
-        m_RoomManager.GetRoomList("color-lab");
-
         if (m_RoomManager.IsInRoom)
         {
-            m_CurrentRoomPanel.Show();
+            ShowCurrentRoomPanel();
         }
+        else
+        {
+            ShowRoomListPanel();
+        }
+    }
+
+    public void ShowRoomListPanel()
+    {
+        Debug.Log("show roomlist panel");
+        m_RoomListPanel.Show();
     }
 
     void ShowCurrentRoomPanel()
     {
         m_RoomListPanel.Hide();
         m_CurrentRoomPanel.Show();
-        m_RoomManager.GetRoomList("color-lab");
     }
 }

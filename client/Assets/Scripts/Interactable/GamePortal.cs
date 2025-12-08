@@ -16,6 +16,6 @@ public class GamePortal : InteractableBase
     protected override void Interact()
     {
         m_RoomListPanel.SetGameConfig(m_GameConfig);
-        m_LobbyUIManager.ShowRoomListPanel(m_GameConfig);
+        m_LobbyUIManager.UseGamePortal(m_GameConfig);
     }
 }

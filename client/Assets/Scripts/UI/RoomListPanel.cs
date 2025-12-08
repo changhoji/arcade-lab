@@ -28,6 +28,11 @@ public class RoomListPanel : UIPanelBase
         m_RefreshButton = m_Root.Q<Button>("refresh-button");
     }
 
+    protected override void Update()
+    {
+        base.Update();
+    }
+
     void Start()
     {
         m_RoomManager.OnRoomListResponse += UpdateRooms;
@@ -121,5 +126,12 @@ public class RoomListPanel : UIPanelBase
         {
             m_RoomManager.GetRoomList(m_GameConfig.gameId);
         }
+    }
+
+    public override void Hide()
+    {
+        base.Hide();
+
+        Debug.Log("roomlistpanel hide");
     }
 }
