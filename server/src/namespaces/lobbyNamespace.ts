@@ -5,6 +5,7 @@ import { ServerService } from '@/services/serverService';
 import { NetworkResult, Position } from '@/types/common';
 import {
   CreateRoomRequest,
+  CreateRoomResponse,
   JoinRoomResponse,
   Lobby as LobbyData,
   LobbyPlayerSnapshot,
@@ -193,7 +194,7 @@ export class LobbyNamespace {
         'room:create',
         (
           request: CreateRoomRequest,
-          callback: (result: NetworkResult<RoomData>) => void
+          callback: (result: NetworkResult<CreateRoomResponse>) => void
         ) => {
           if (!lobbyService) {
             callback({
@@ -221,7 +222,10 @@ export class LobbyNamespace {
           roomService = room;
           callback({
             success: true,
-            data: room.toRoomData(),
+            data: {
+              room: room.toRoomData(),
+              player: roomService.getPlayerSnapshot(userId),
+            },
             error: null,
           });
         }

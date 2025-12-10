@@ -34,6 +34,11 @@ export interface RoomPlayerState {
 
 export type RoomPlayerSnapshot = PlayerBaseState & RoomPlayerState;
 
+export interface CreateRoomResponse {
+  room: RoomData;
+  player: RoomPlayerSnapshot;
+}
+
 export interface JoinRoomResponse {
   room: RoomData;
   players: RoomPlayerSnapshot[];

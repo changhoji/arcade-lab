@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ArcadeLab.Data;
 using UnityEngine;
@@ -6,6 +7,8 @@ using VContainer;
 public class LobbyManager : MonoBehaviour
 {
     public string LobbyId { get; private set; }
+
+    public event Action<string, string> OnNicknameChanged;
 
     [SerializeField] GameObject m_PlayerPrefab;
 
@@ -54,7 +57,10 @@ public class LobbyManager : MonoBehaviour
             playerMovement.OnChangePosition += (position) => { m_LobbyService.EmitPlayerMoved(position); };
             playerMovement.OnChangeIsMoving += (isMoving) => { m_LobbyService.EmitPlayerMoving(isMoving); };
             playerBase.OnChangeSkin += (skinIndex) => { m_LobbyService.EmitPlayerSkinIndex(skinIndex); };
-            playerBase.OnChangeNickname += (nickname) => { m_LobbyService.EmitPlayerNickname(nickname); };
+            playerBase.OnChangeNickname += (nickname) => { 
+                m_LobbyService.EmitPlayerNickname(nickname);
+                OnNicknameChanged?.Invoke(player.userId, nickname);
+            };
         }
 
         m_Players.Add(player.userId, playerBase);
@@ -134,5 +140,7 @@ public class LobbyManager : MonoBehaviour
 
         var player = m_Players[userId];
         player.SetNickname(nickname);
+
+        OnNicknameChanged?.Invoke(userId, nickname);
     }
 }

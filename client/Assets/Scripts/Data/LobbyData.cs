@@ -55,6 +55,12 @@ namespace ArcadeLab.Data
         public string name;
     }
 
+    public class CreateRoomResponse
+    {
+        public RoomData room;
+        public RoomPlayerData player;
+    }
+
     public class JoinRoomResponse
     {
         public RoomData room;

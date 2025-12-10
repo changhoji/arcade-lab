@@ -16,7 +16,7 @@ public class LobbyNetworkService : INetworkService
     public event Action<string> OnCreateLobbyResponse;
     public event Action<string> OnJoinLobbyResponse;
     public event Action<RoomData[]> OnRoomListResponse;
-    public event Action<RoomData> OnCreateRoomResposne;
+    public event Action<CreateRoomResponse> OnCreateRoomResposne;
     public event Action<JoinRoomResponse> OnJoinRoomResponse;
     public event Action OnLeaveRoomResponse;
 
@@ -230,7 +230,7 @@ public class LobbyNetworkService : INetworkService
         var context = SynchronizationContext.Current;
         m_LobbySocket.Emit("room:create", (response) =>
         {
-            var result = response.GetValue<NetworkResult<RoomData>>();
+            var result = response.GetValue<NetworkResult<CreateRoomResponse>>();
             if (result.success)
             {
                 context.Post(_ => OnCreateRoomResposne?.Invoke(result.data), null);    
@@ -295,4 +295,5 @@ public class LobbyNetworkService : INetworkService
     {
         m_LobbySocket.Emit("player:changeNickname", nickname);
     }
+
 }

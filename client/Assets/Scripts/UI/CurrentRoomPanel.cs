@@ -7,6 +7,7 @@ using VContainer;
 public class CurrentRoomPanel : UIPanelBase
 {
     [Inject] AuthManager m_AuthManager;
+    [Inject] LobbyManager m_LobbyManager;
     [Inject] RoomManager m_RoomManager;
 
     Button m_StartButton;
@@ -46,6 +47,8 @@ public class CurrentRoomPanel : UIPanelBase
 
     void Start()
     {
+        m_LobbyManager.OnNicknameChanged += UpdateNickname;
+
         m_RoomManager.OnCreateRoomResposne += HandleCreateRoomResponse;
         m_RoomManager.OnJoinRoomResponse += HandleJoinRoomResponse;
         m_RoomManager.OnLeaveRoomResponse += Hide;
@@ -61,6 +64,8 @@ public class CurrentRoomPanel : UIPanelBase
 
     void OnDestroy()
     {
+        m_LobbyManager.OnNicknameChanged -= UpdateNickname;
+
         m_RoomManager.OnCreateRoomResposne -= HandleCreateRoomResponse;
         m_RoomManager.OnJoinRoomResponse -= HandleJoinRoomResponse;
         m_RoomManager.OnLeaveRoomResponse += Hide;
@@ -68,16 +73,9 @@ public class CurrentRoomPanel : UIPanelBase
         m_RoomManager.OnRoomLeft -= HandleRoomLeft;
     }
    
-    void HandleCreateRoomResponse(RoomData room)
+    void HandleCreateRoomResponse(CreateRoomResponse response)
     {
-        SetPlayerData(0, new RoomPlayerData
-        {
-            userId = m_AuthManager.UserId,
-            nickname = m_AuthManager.Player.nickname,
-            skinIndex = m_AuthManager.Player.skinIndex,
-            isHost = true,
-            isReady = false
-        });
+        SetPlayerData(0, response.player);
 
         m_StartButton.style.display = DisplayStyle.Flex;
         m_ReadyButton.style.display = DisplayStyle.None;
@@ -167,6 +165,20 @@ public class CurrentRoomPanel : UIPanelBase
         {
             badge.text = "NOT READY";
             badge.AddToClassList("not-ready");
+        }
+    }
+
+    void UpdateNickname(string userId, string nickname)
+    {
+        Debug.Log("updatenickname call");
+
+        if (m_PlayersData[0] != null && m_PlayersData[0].userId == userId)
+        {
+            m_PlayerNicknames[0].text = nickname;
+        }
+        if (m_PlayersData[1] != null && m_PlayersData[1].userId == userId)
+        {
+            m_PlayerNicknames[1].text = nickname;
         }
     }
 }

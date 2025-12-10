@@ -8,7 +8,7 @@ using VContainer;
 public class RoomManager : MonoBehaviour
 {
     public event Action<RoomData[]> OnRoomListResponse;
-    public event Action<RoomData> OnCreateRoomResposne;
+    public event Action<CreateRoomResponse> OnCreateRoomResposne;
     public event Action<JoinRoomResponse> OnJoinRoomResponse;
     public event Action OnLeaveRoomResponse;
     public event Action<RoomPlayerData> OnRoomJoined;
@@ -19,6 +19,7 @@ public class RoomManager : MonoBehaviour
     [Inject] LobbyNetworkService m_LobbyService;
 
     RoomData m_CurrentRoom;
+    RoomPlayerData m_PlayerData;
 
     void Start()
     {
@@ -79,9 +80,10 @@ public class RoomManager : MonoBehaviour
         m_LobbyService.RequestLeaveRoom();
     }
 
-    public void ChangeIsReady()
+    public void ChangeIsReady(bool isReady)
     {
-        
+        m_PlayerData.isReady = isReady;
+        // m_LobbyService.Emit
     }
 
     void HandleRoomListResponse(RoomData[] rooms)
@@ -89,11 +91,12 @@ public class RoomManager : MonoBehaviour
         OnRoomListResponse?.Invoke(rooms);
     }
 
-    void HandleCreateRoomResponse(RoomData room)
+    void HandleCreateRoomResponse(CreateRoomResponse response)
     {
-        m_CurrentRoom = room;
-        GetRoomList(room.gameId);
-        OnCreateRoomResposne?.Invoke(room);
+        m_CurrentRoom = response.room;
+        m_PlayerData = response.player;
+        GetRoomList(response.room.gameId);
+        OnCreateRoomResposne?.Invoke(response);
     }
 
     void HandleJoinRoomResponse(JoinRoomResponse response)
