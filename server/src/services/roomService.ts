@@ -25,13 +25,23 @@ export class RoomService {
 
   joinRoom(userId: string) {
     this.roomPlayers.set(userId, {
-      isReady: false,
-      isHost: false,
+      isReady: userId === this.hostId,
+      isHost: userId === this.hostId,
     });
   }
 
   leaveRoom(userId: string) {
     this.roomPlayers.delete(userId);
+  }
+
+  start(): boolean {
+    let allReady = true;
+    this.roomPlayers.forEach((player) => {
+      if (!player.isReady) {
+        allReady = false;
+      }
+    });
+    return allReady;
   }
 
   getPlayerSnapshots(): RoomPlayerSnapshot[] {
@@ -52,5 +62,14 @@ export class RoomService {
       ...this.authService.getUser(userId)!,
       ...this.roomPlayers.get(userId)!,
     };
+  }
+
+  updateReady(userId: string, isReady: boolean): boolean {
+    const player = this.roomPlayers.get(userId);
+    if (player) {
+      player.isReady = isReady;
+      return true;
+    }
+    return false;
   }
 }

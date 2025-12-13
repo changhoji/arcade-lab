@@ -54,10 +54,11 @@ public class CurrentRoomPanel : UIPanelBase
         m_RoomManager.OnLeaveRoomResponse += Hide;
         m_RoomManager.OnRoomJoined += HandleRoomJoined;
         m_RoomManager.OnRoomLeft += HandleRoomLeft;
+        m_RoomManager.OnReadyChanged += UpdateReady;
 
         m_LeaveButton.clicked += m_RoomManager.LeaveRoom;
-        m_ReadyButton.clicked += () => { };
-        m_StartButton.clicked += () => { };
+        m_ReadyButton.clicked += m_RoomManager.ToggleReady;;
+        m_StartButton.clicked += m_RoomManager.StartRoom;
 
         Hide();
     }
@@ -71,6 +72,7 @@ public class CurrentRoomPanel : UIPanelBase
         m_RoomManager.OnLeaveRoomResponse += Hide;
         m_RoomManager.OnRoomJoined -= HandleRoomJoined;
         m_RoomManager.OnRoomLeft -= HandleRoomLeft;
+        m_RoomManager.OnReadyChanged -= UpdateReady;
     }
    
     void HandleCreateRoomResponse(CreateRoomResponse response)
@@ -129,6 +131,8 @@ public class CurrentRoomPanel : UIPanelBase
         m_PlayerHostBadges[slotIndex].style.display = 
             player.isHost ? DisplayStyle.Flex : DisplayStyle.None;
 
+        m_PlayerReadyBadges[slotIndex].style.display =
+            player.isHost ? DisplayStyle.None : DisplayStyle.Flex;
         // Ready 뱃지 업데이트
         UpdateReadyBadge(slotIndex, player.isReady);
     }
@@ -179,6 +183,18 @@ public class CurrentRoomPanel : UIPanelBase
         if (m_PlayersData[1] != null && m_PlayersData[1].userId == userId)
         {
             m_PlayerNicknames[1].text = nickname;
+        }
+    }
+
+    void UpdateReady(string userId, bool isReady)
+    {
+        if (m_PlayersData[0] != null && m_PlayersData[0].userId == userId)
+        {
+            UpdateReadyBadge(0, isReady);
+        }
+        if (m_PlayersData[1] != null && m_PlayersData[1].userId == userId)
+        {
+            UpdateReadyBadge(1, isReady);
         }
     }
 }

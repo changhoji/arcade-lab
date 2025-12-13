@@ -19,6 +19,7 @@ public class LobbyNetworkService : INetworkService
     public event Action<CreateRoomResponse> OnCreateRoomResposne;
     public event Action<JoinRoomResponse> OnJoinRoomResponse;
     public event Action OnLeaveRoomResponse;
+    public event Action OnStartRoomResponse;
 
     // lobby sync events
     public event Action<LobbyPlayerData[]> OnLobbyInitResponse;
@@ -28,6 +29,8 @@ public class LobbyNetworkService : INetworkService
     public event Action<string> OnPlayerLeft;
     public event Action<string, int> OnSkinChanged;
     public event Action<string, string> OnNicknameChanged;
+    public event Action<string, bool> OnReadyChanged;
+    public event Action OnRoomStarted;
     
     // room sync events
     public event Action<RoomPlayerData> OnRoomJoined;
@@ -106,6 +109,16 @@ public class LobbyNetworkService : INetworkService
             OnNicknameChanged?.Invoke(userId, nickname);
         });
 
+        m_LobbySocket.OnUnityThread("player:readyChanged", response =>
+        {
+            var userId = response.GetValue<string>(0); 
+            var isReady = response.GetValue<bool>(1);
+
+            Debug.Log("readyChanged");
+
+            OnReadyChanged?.Invoke(userId, isReady);
+        });
+
         m_LobbySocket.OnUnityThread("room:joined", response =>
         {
             var player = response.GetValue<RoomPlayerData>();
@@ -119,6 +132,11 @@ public class LobbyNetworkService : INetworkService
             Debug.Log("left received");
 
             OnRoomLeft?.Invoke(userId);
+        });
+
+        m_LobbySocket.OnUnityThread("room:started", response =>
+        {
+            OnRoomStarted?.Invoke();
         });
     }
 
@@ -276,6 +294,23 @@ public class LobbyNetworkService : INetworkService
         });
     }
 
+    public void RequestStartRoom()
+    {
+        var context = SynchronizationContext.Current;
+        m_LobbySocket.Emit("room:start", (response) =>
+        {
+            var result = response.GetValue<NetworkResult<object>>();
+            if (result.success)
+            {
+                context.Post(_ => OnStartRoomResponse?.Invoke(), null);
+            }
+            else
+            {
+                Debug.LogError($"Room start failed: {result.error}");
+            }
+        });
+    }
+
     public void EmitPlayerMoved(Position position)
     {
         m_LobbySocket.Emit("player:changePosition", position);
@@ -296,4 +331,8 @@ public class LobbyNetworkService : INetworkService
         m_LobbySocket.Emit("player:changeNickname", nickname);
     }
 
+    public void SendReady(bool isReady)
+    {
+        m_LobbySocket.Emit("player:changeReady", isReady);
+    }
 }

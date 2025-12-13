@@ -127,7 +127,6 @@ export class LobbyNamespace {
       socket.on('player:changePosition', (position: Position) => {
         if (lobbyService) {
           if (lobbyService.updatePosition(userId, position)) {
-            console.log(`emit ${userId}`);
             socket
               .to(lobbyService.lobbyId)
               .emit('player:positionChanged', userId, position);
@@ -162,6 +161,20 @@ export class LobbyNamespace {
               .to(lobbyService.lobbyId)
               .emit('player:nicknameChanged', userId, nickname);
           }
+        }
+      });
+
+      socket.on('player:changeReady', (isReady: boolean) => {
+        console.log('got changeReady');
+        if (roomService) {
+          if (roomService.updateReady(userId, isReady)) {
+            console.log('update success');
+            socket
+              .to(`room:${roomService.roomId}`)
+              .emit('player:readyChanged', userId, isReady);
+            return;
+          }
+          console.log('update failed');
         }
       });
 
@@ -307,6 +320,45 @@ export class LobbyNamespace {
             lobbyService.removeRoom(roomService.roomId);
           }
           roomService = null;
+        }
+      );
+
+      socket.on(
+        'room:start',
+        (callback: (result: NetworkResult<void>) => void) => {
+          if (!lobbyService) {
+            callback({
+              success: false,
+              data: null,
+              error: 'cannot find lobby',
+            });
+            return;
+          }
+
+          if (!roomService) {
+            callback({
+              success: false,
+              data: null,
+              error: 'cannot find room',
+            });
+            return;
+          }
+
+          if (!roomService.start()) {
+            callback({
+              success: false,
+              data: null,
+              error: 'not all player is ready',
+            });
+            return;
+          }
+
+          callback({
+            success: true,
+            data: null,
+            error: null,
+          });
+          socket.to(`room:${roomService.roomId}`).emit('room:started');
         }
       );
 
