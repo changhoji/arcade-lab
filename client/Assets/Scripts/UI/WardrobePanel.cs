@@ -59,13 +59,6 @@ public class WardrobePanel : UIPanelBase
         // }
     }
 
-    public override void Show()
-    {
-        base.Show();
-        
-        Debug.Log("wardrobepanel.show");
-    }
-
     public void ChangeNickname(string nickname)
     {
         PlayerBase.LocalPlayer.SetNickname(nickname);
@@ -74,8 +67,6 @@ public class WardrobePanel : UIPanelBase
     void ChangeSkin(int direction)
     {
         m_SelectedIndex = (m_SelectedIndex + k_NumberOfSkin + direction) % k_NumberOfSkin;
-
-        Debug.Log($"prev = {m_PreviousIndex} / selected = {m_SelectedIndex}");
 
         if (m_SelectedIndex != m_PreviousIndex)
         {

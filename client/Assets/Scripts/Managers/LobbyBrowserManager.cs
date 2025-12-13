@@ -43,7 +43,6 @@ public class LobbyBrowserManager : MonoBehaviour
 
     public void JoinLobby(string lobbyId)
     {
-        Debug.Log("join lobby request!");
         m_LobbyService.RequestJoinLobby(lobbyId);
     }
 
@@ -51,20 +50,17 @@ public class LobbyBrowserManager : MonoBehaviour
     {
         m_LobbyService.InitializeSocket();
         await m_LobbyService.ConnectAsync();
-        Debug.Log("Lobby socket connected");
         GetLobbyList();
     }
 
     void HandleLobbyListResponse(LobbyData[] lobbies)
     {
-        Debug.Log($"lobby list length = {lobbies.Length}");
         m_Lobbies.Clear();
         foreach (var lobby in lobbies)
         {
             m_Lobbies.Add(lobby.lobbyId, lobby);
         }
 
-        Debug.Log("LobbyBrowserManager.LobbyListResponse");
         OnLobbyListResponse?.Invoke(lobbies);
     }
 

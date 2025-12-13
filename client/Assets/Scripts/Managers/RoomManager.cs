@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ArcadeLab.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -110,7 +109,7 @@ public class RoomManager : MonoBehaviour
     public void ToggleReady()
     {
         m_Players[m_AuthManager.UserId].isReady = !m_Players[m_AuthManager.UserId].isReady;
-        m_LobbyService.SendReady(m_Players[m_AuthManager.UserId].isReady);
+        m_LobbyService.SendPlayerReady(m_Players[m_AuthManager.UserId].isReady);
         OnReadyChanged?.Invoke(m_AuthManager.UserId, m_Players[m_AuthManager.UserId].isReady);
     }
 
@@ -181,8 +180,11 @@ public class RoomManager : MonoBehaviour
         }
     }
 
-    void HandleReadyChanged(string userId, bool isReady)
+    void HandleReadyChanged(PlayerReadyPayload payload)
     {
+        string userId = payload.userId;
+        bool isReady = payload.isReady;
+
         if (!m_Players.ContainsKey(userId))
         {
             Debug.LogWarning("No player exists to modify ready");

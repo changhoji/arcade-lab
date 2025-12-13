@@ -9,6 +9,11 @@ import {
   JoinRoomResponse,
   Lobby as LobbyData,
   LobbyPlayerSnapshot,
+  PlayerMovingPayload,
+  PlayerNicknamePayload,
+  PlayerPositionPayload,
+  PlayerReadyPayload,
+  PlayerSkinPayload,
   RoomData,
 } from '@/types/lobby';
 import { generateId } from '@/utils/idGenerator';
@@ -120,26 +125,28 @@ export class LobbyNamespace {
 
           socket
             .to(lobbyService.lobbyId)
-            .emit('player:joined', lobbyService.getPlayerSnapshot(userId));
+            .emit('lobby:joined', lobbyService.getPlayerSnapshot(userId));
         }
       );
 
       socket.on('player:changePosition', (position: Position) => {
         if (lobbyService) {
           if (lobbyService.updatePosition(userId, position)) {
+            const payload: PlayerPositionPayload = { userId, position };
             socket
               .to(lobbyService.lobbyId)
-              .emit('player:positionChanged', userId, position);
+              .emit('player:positionChanged', payload);
           }
         }
       });
 
-      socket.on('player:changeIsMoving', (isMoving: boolean) => {
+      socket.on('player:changeMoving', (isMoving: boolean) => {
         if (lobbyService) {
           if (lobbyService.updateIsMoving(userId, isMoving)) {
+            const payload: PlayerMovingPayload = { userId, isMoving };
             socket
               .to(lobbyService.lobbyId)
-              .emit('player:isMovingChanged', userId, isMoving);
+              .emit('player:movingChanged', payload);
           }
         }
       });
@@ -147,9 +154,8 @@ export class LobbyNamespace {
       socket.on('player:changeSkin', (skinIndex: number) => {
         if (this.authService && lobbyService) {
           if (this.authService.updateSkinIndex(userId, skinIndex)) {
-            socket
-              .to(lobbyService.lobbyId)
-              .emit('player:skinChanged', userId, skinIndex);
+            const payload: PlayerSkinPayload = { userId, skinIndex };
+            socket.to(lobbyService.lobbyId).emit('player:skinChanged', payload);
           }
         }
       });
@@ -157,24 +163,22 @@ export class LobbyNamespace {
       socket.on('player:changeNickname', (nickname: string) => {
         if (this.authService && lobbyService) {
           if (this.authService.updateNickname(userId, nickname)) {
+            const payload: PlayerNicknamePayload = { userId, nickname };
             socket
               .to(lobbyService.lobbyId)
-              .emit('player:nicknameChanged', userId, nickname);
+              .emit('player:nicknameChanged', payload);
           }
         }
       });
 
       socket.on('player:changeReady', (isReady: boolean) => {
-        console.log('got changeReady');
         if (roomService) {
           if (roomService.updateReady(userId, isReady)) {
-            console.log('update success');
+            const payload: PlayerReadyPayload = { userId, isReady };
             socket
               .to(`room:${roomService.roomId}`)
-              .emit('player:readyChanged', userId, isReady);
-            return;
+              .emit('player:readyChanged', payload);
           }
-          console.log('update failed');
         }
       });
 
@@ -365,7 +369,7 @@ export class LobbyNamespace {
       socket.on('disconnecting', () => {
         if (lobbyService) {
           lobbyService.leaveLobby(userId);
-          socket.to(lobbyService.lobbyId).emit('player:left', userId);
+          socket.to(lobbyService.lobbyId).emit('lobby:left', userId);
           if (lobbyService.currentPlayers === 0) {
             console.log(`lobby ${lobbyService} removed`);
             this.serverService.removeLobby(lobbyService.lobbyId);

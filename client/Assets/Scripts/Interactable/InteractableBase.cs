@@ -12,7 +12,6 @@ public abstract class InteractableBase : MonoBehaviour
 
         if (Input.GetKeyDown(m_KeyCode))
         {
-            Debug.Log("call interact");
             Interact();
         }
     }

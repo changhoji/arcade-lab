@@ -35,18 +35,7 @@ public class MainMenuUIManager : MonoBehaviour
 
     public void ShowLobbyBrowserPanel()
     {
-        Debug.Log("here");
-        try
-    {
         m_AuthPanel.Hide();
-        Debug.Log("AuthPanel.Hide() completed");
-    }
-    catch (System.Exception e)
-    {
-        Debug.LogError($"Error hiding AuthPanel: {e}");
-    }
-        Debug.Log("here");
-
         m_LobbyBrowserPanel.Show();
     }
 

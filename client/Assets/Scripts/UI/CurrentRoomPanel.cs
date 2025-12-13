@@ -86,7 +86,6 @@ public class CurrentRoomPanel : UIPanelBase
     void HandleJoinRoomResponse(JoinRoomResponse response)
     {
         var players = response.players;
-        Debug.Log(players.Length);
         
         for (int i = 0; i < players.Length; i++)
         {
@@ -99,7 +98,6 @@ public class CurrentRoomPanel : UIPanelBase
 
     void HandleRoomJoined(RoomPlayerData player)
     {
-        Debug.Log("handle room joined in current room panel");
         SetPlayerData(1, player);
     }
 
@@ -174,8 +172,6 @@ public class CurrentRoomPanel : UIPanelBase
 
     void UpdateNickname(string userId, string nickname)
     {
-        Debug.Log("updatenickname call");
-
         if (m_PlayersData[0] != null && m_PlayersData[0].userId == userId)
         {
             m_PlayerNicknames[0].text = nickname;

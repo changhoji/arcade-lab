@@ -12,6 +12,7 @@ using VContainer;
 
 public class LobbyNetworkService : INetworkService
 {
+    public event Action<LobbyPlayerData[]> OnLobbyInitResponse;
     public event Action<LobbyData[]> OnLobbyListResponse;
     public event Action<string> OnCreateLobbyResponse;
     public event Action<string> OnJoinLobbyResponse;
@@ -20,19 +21,15 @@ public class LobbyNetworkService : INetworkService
     public event Action<JoinRoomResponse> OnJoinRoomResponse;
     public event Action OnLeaveRoomResponse;
     public event Action OnStartRoomResponse;
-
-    // lobby sync events
-    public event Action<LobbyPlayerData[]> OnLobbyInitResponse;
-    public event Action<string, Position> OnPositionChanged;
-    public event Action<string, bool> OnIsMovingChanged;
-    public event Action<LobbyPlayerData> OnPlayerJoined;
-    public event Action<string> OnPlayerLeft;
-    public event Action<string, int> OnSkinChanged;
-    public event Action<string, string> OnNicknameChanged;
-    public event Action<string, bool> OnReadyChanged;
-    public event Action OnRoomStarted;
     
-    // room sync events
+    public event Action<PlayerPositionPayload> OnPositionChanged;
+    public event Action<PlayerMovingPayload> OnMovingChanged;
+    public event Action<LobbyPlayerData> OnLobbyJoined;
+    public event Action<string> OnLobbyLeft;
+    public event Action<PlayerSkinPayload> OnSkinChanged;
+    public event Action<PlayerNicknamePayload> OnNicknameChanged;
+    public event Action<PlayerReadyPayload> OnReadyChanged;
+    public event Action OnRoomStarted;
     public event Action<RoomPlayerData> OnRoomJoined;
     public event Action<string> OnRoomLeft;
 
@@ -65,58 +62,51 @@ public class LobbyNetworkService : INetworkService
     {
         m_LobbySocket.OnUnityThread("player:positionChanged", response =>
         {
-            var userId = response.GetValue<string>(0);
-            var position = response.GetValue<Position>(1);
+            var payload = response.GetValue<PlayerPositionPayload>();
 
-            OnPositionChanged?.Invoke(userId, position);
+            OnPositionChanged?.Invoke(payload);
         });
 
-        m_LobbySocket.OnUnityThread("player:isMovingChanged", response =>
+        m_LobbySocket.OnUnityThread("player:movingChanged", response =>
         {
-            var userId = response.GetValue<string>(0);
-            var isMoving = response.GetValue<bool>(1);
+            var payload = response.GetValue<PlayerMovingPayload>();
 
-            OnIsMovingChanged?.Invoke(userId, isMoving);
+            OnMovingChanged?.Invoke(payload);
         });
 
-        m_LobbySocket.OnUnityThread("player:joined", response =>
+        m_LobbySocket.OnUnityThread("lobby:joined", response =>
         {
             var player = response.GetValue<LobbyPlayerData>(0);
 
-            OnPlayerJoined?.Invoke(player);
+            OnLobbyJoined?.Invoke(player);
         });
 
-        m_LobbySocket.OnUnityThread("player:left", resposne =>
+        m_LobbySocket.OnUnityThread("lobby:left", resposne =>
         {
             var userId = resposne.GetValue<string>(0);
             
-            OnPlayerLeft?.Invoke(userId);
+            OnLobbyLeft?.Invoke(userId);
         });
 
         m_LobbySocket.OnUnityThread("player:skinChanged", response =>
         {
-            var userId = response.GetValue<string>(0);
-            var skinIndex = response.GetValue<int>(1);
+            var payload = response.GetValue<PlayerSkinPayload>();
 
-            OnSkinChanged?.Invoke(userId, skinIndex);
+            OnSkinChanged?.Invoke(payload);
         });
 
         m_LobbySocket.OnUnityThread("player:nicknameChanged", response =>
         {
-            var userId = response.GetValue<string>(0);
-            var nickname = response.GetValue<string>(1);
+            var payload = response.GetValue<PlayerNicknamePayload>();
 
-            OnNicknameChanged?.Invoke(userId, nickname);
+            OnNicknameChanged?.Invoke(payload);
         });
 
         m_LobbySocket.OnUnityThread("player:readyChanged", response =>
         {
-            var userId = response.GetValue<string>(0); 
-            var isReady = response.GetValue<bool>(1);
+            var payload = response.GetValue<PlayerReadyPayload>();
 
-            Debug.Log("readyChanged");
-
-            OnReadyChanged?.Invoke(userId, isReady);
+            OnReadyChanged?.Invoke(payload);
         });
 
         m_LobbySocket.OnUnityThread("room:joined", response =>
@@ -311,27 +301,27 @@ public class LobbyNetworkService : INetworkService
         });
     }
 
-    public void EmitPlayerMoved(Position position)
+    public void SendPlayerPosition(Position position)
     {
         m_LobbySocket.Emit("player:changePosition", position);
     }
 
-    public void EmitPlayerMoving(bool value)
+    public void SendPlayerMoving(bool value)
     {
-        m_LobbySocket.Emit("player:changeIsMoving", value);
+        m_LobbySocket.Emit("player:changeMoving", value);
     }
 
-    public void EmitPlayerSkinIndex(int skinIndex)
+    public void SendPlayerSkin(int skinIndex)
     {
         m_LobbySocket.Emit("player:changeSkin", skinIndex);
     }
 
-    public void EmitPlayerNickname(string nickname)
+    public void SendPlayerNickname(string nickname)
     {
         m_LobbySocket.Emit("player:changeNickname", nickname);
     }
 
-    public void SendReady(bool isReady)
+    public void SendPlayerReady(bool isReady)
     {
         m_LobbySocket.Emit("player:changeReady", isReady);
     }

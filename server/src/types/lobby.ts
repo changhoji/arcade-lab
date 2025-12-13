@@ -43,3 +43,28 @@ export interface JoinRoomResponse {
   room: RoomData;
   players: RoomPlayerSnapshot[];
 }
+
+export interface PlayerPositionPayload {
+  userId: string;
+  position: Position;
+}
+
+export interface PlayerMovingPayload {
+  userId: string;
+  isMoving: boolean;
+}
+
+export interface PlayerSkinPayload {
+  userId: string;
+  skinIndex: number;
+}
+
+export interface PlayerNicknamePayload {
+  userId: string;
+  nickname: string;
+}
+
+export interface PlayerReadyPayload {
+  userId: string;
+  isReady: boolean;
+}

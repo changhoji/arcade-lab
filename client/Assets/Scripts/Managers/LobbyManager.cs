@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ArcadeLab.Data;
+using JetBrains.Annotations;
 using UnityEngine;
 using VContainer;
 
@@ -22,9 +23,9 @@ public class LobbyManager : MonoBehaviour
 
         m_LobbyService.OnLobbyInitResponse += HandleLobbyInitResponse;
         m_LobbyService.OnPositionChanged += HandlePositionChanged;
-        m_LobbyService.OnIsMovingChanged += HandleIsMovingChanged;
-        m_LobbyService.OnPlayerJoined += HandlePlayerJoined;
-        m_LobbyService.OnPlayerLeft += HandlePlayerLeft;
+        m_LobbyService.OnMovingChanged += HandleMovingChanged;
+        m_LobbyService.OnLobbyJoined += HandleLobbyJoined;
+        m_LobbyService.OnLobbyLeft += HandleLobbyLeft;
         m_LobbyService.OnSkinChanged += HandleSkinChanged;
         m_LobbyService.OnNicknameChanged += HandleNicknameChanged;
 
@@ -35,9 +36,9 @@ public class LobbyManager : MonoBehaviour
     {
         m_LobbyService.OnLobbyInitResponse -= HandleLobbyInitResponse;
         m_LobbyService.OnPositionChanged -= HandlePositionChanged;
-        m_LobbyService.OnIsMovingChanged -= HandleIsMovingChanged;
-        m_LobbyService.OnPlayerJoined -= HandlePlayerJoined;
-        m_LobbyService.OnPlayerLeft -= HandlePlayerLeft;
+        m_LobbyService.OnMovingChanged -= HandleMovingChanged;
+        m_LobbyService.OnLobbyJoined -= HandleLobbyJoined;
+        m_LobbyService.OnLobbyLeft -= HandleLobbyLeft;
         m_LobbyService.OnSkinChanged -= HandleSkinChanged;
         m_LobbyService.OnNicknameChanged -= HandleNicknameChanged;
     }
@@ -54,11 +55,11 @@ public class LobbyManager : MonoBehaviour
         playerMovement.Init(player.position, player.isMoving);
         if (isOwner)
         {
-            playerMovement.OnChangePosition += (position) => { m_LobbyService.EmitPlayerMoved(position); };
-            playerMovement.OnChangeIsMoving += (isMoving) => { m_LobbyService.EmitPlayerMoving(isMoving); };
-            playerBase.OnChangeSkin += (skinIndex) => { m_LobbyService.EmitPlayerSkinIndex(skinIndex); };
+            playerMovement.OnChangePosition += (position) => { m_LobbyService.SendPlayerPosition(position); };
+            playerMovement.OnChangeIsMoving += (isMoving) => { m_LobbyService.SendPlayerMoving(isMoving); };
+            playerBase.OnChangeSkin += (skinIndex) => { m_LobbyService.SendPlayerSkin(skinIndex); };
             playerBase.OnChangeNickname += (nickname) => { 
-                m_LobbyService.EmitPlayerNickname(nickname);
+                m_LobbyService.SendPlayerNickname(nickname);
                 OnNicknameChanged?.Invoke(player.userId, nickname);
             };
         }
@@ -74,12 +75,12 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
-    void HandlePlayerJoined(LobbyPlayerData player)
+    void HandleLobbyJoined(LobbyPlayerData player)
     {
         SpawnPlayer(player);
     }
 
-    void HandlePlayerLeft(string userId)
+    void HandleLobbyLeft(string userId)
     {
         if (!m_Players.ContainsKey(userId))
         {
@@ -92,8 +93,11 @@ public class LobbyManager : MonoBehaviour
         m_Players.Remove(userId);
     }
 
-    void HandlePositionChanged(string userId, Position position)
+    void HandlePositionChanged(PlayerPositionPayload payload)
     {
+        string userId = payload.userId;
+        Position position = payload.position;
+
         if (!m_Players.ContainsKey(userId))
         {
             Debug.LogWarning("No player exists to modify position");
@@ -105,8 +109,11 @@ public class LobbyManager : MonoBehaviour
         playerMovement.SetPosition(position);
     }
 
-    void HandleIsMovingChanged(string userId, bool isMoving)
+    void HandleMovingChanged(PlayerMovingPayload payload)
     {
+        string userId = payload.userId;
+        bool isMoving = payload.isMoving;
+
         if (!m_Players.ContainsKey(userId))
         {
             Debug.LogWarning("No player exists to modify isMoving");
@@ -118,8 +125,11 @@ public class LobbyManager : MonoBehaviour
         playerMovement.IsMoving = isMoving;
     }
 
-    void HandleSkinChanged(string userId, int skinIndex)
+    void HandleSkinChanged(PlayerSkinPayload payload)
     {
+        string userId = payload.userId;
+        int skinIndex = payload.skinIndex;
+
         if (!m_Players.ContainsKey(userId))
         {
             Debug.LogWarning("No player exists to modify skin");
@@ -130,8 +140,11 @@ public class LobbyManager : MonoBehaviour
         player.SetSkinIndex(skinIndex);
     }
 
-    void HandleNicknameChanged(string userId, string nickname)
+    void HandleNicknameChanged(PlayerNicknamePayload payload)
     {
+        string userId = payload.userId;
+        string nickname = payload.nickname;
+
         if (!m_Players.ContainsKey(userId))
         {
             Debug.LogWarning("No player exists to modify nickname");

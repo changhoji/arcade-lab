@@ -127,11 +127,4 @@ public class RoomListPanel : UIPanelBase
             m_RoomManager.GetRoomList(m_GameConfig.gameId);
         }
     }
-
-    public override void Hide()
-    {
-        base.Hide();
-
-        Debug.Log("roomlistpanel hide");
-    }
 }

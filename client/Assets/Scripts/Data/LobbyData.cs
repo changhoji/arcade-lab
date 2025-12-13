@@ -1,30 +1,40 @@
 namespace ArcadeLab.Data
 {
-    #region Player Datas
     public class LobbyPlayerData : PlayerBaseData
     {
         public Position position;
         public bool isMoving;
     }
 
-    public class PlayerMoveData
+    public class PlayerPositionPayload
     {
         public string userId;
         public Position position;
     }
 
-    public class PlayerSkinData
+    public class PlayerMovingPayload
+    {
+        public string userId;
+        public bool isMoving;
+    }
+
+    public class PlayerSkinPayload
     {
         public string userId;
         public int skinIndex;
     }
 
-    public class PlayerNicknameData
+    public class PlayerNicknamePayload
     {
         public string userId;
         public string nickname;
     }
-    #endregion
+
+    public class PlayerReadyPayload
+    {
+        public string userId;
+        public bool isReady;
+    }
 
     public class LobbyData
     {
