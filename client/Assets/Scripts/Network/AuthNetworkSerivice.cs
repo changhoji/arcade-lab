@@ -23,7 +23,7 @@ public class AuthNetworkService : INetworkService
         Disconnect();
     }
 
-    public void RegisterEventListeners() {}
+    void RegisterEventListeners() {}
 
     public async Task ConnectAsync()
     {

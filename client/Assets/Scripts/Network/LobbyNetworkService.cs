@@ -58,7 +58,7 @@ public class LobbyNetworkService : INetworkService
         Disconnect();
     }
 
-    public void RegisterEventListeners()
+    void RegisterEventListeners()
     {
         m_LobbySocket.OnUnityThread("player:positionChanged", response =>
         {

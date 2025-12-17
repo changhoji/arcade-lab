@@ -94,6 +94,12 @@ export class LobbyService {
     return room;
   }
 
+  getRoomById(roomId: string): RoomService | null {
+    const room = this.rooms.get(roomId);
+    console.log(`in lobbyservice, ${room}`);
+    return room ?? null;
+  }
+
   removeRoom(roomId: string) {
     this.rooms.delete(roomId);
   }

@@ -1,5 +1,6 @@
 import { AuthService } from '@/services/authService';
 import { LobbyService } from '@/services/lobbyService';
+import { RoomService } from '@/services/roomService';
 import { Lobby as LobbyData } from '@/types/lobby';
 export class ServerService {
   private lobbies: Map<string, LobbyService> = new Map();
@@ -37,5 +38,13 @@ export class ServerService {
   getLobby(lobbyId: string): LobbyService | null {
     const lobby = this.lobbies.get(lobbyId);
     return lobby ?? null;
+  }
+
+  getRoomById(roomId: string): RoomService | null {
+    for (const lobby of this.lobbies.values()) {
+      const room = lobby.getRoomById(roomId);
+      if (room) return room;
+    }
+    return null;
   }
 }

@@ -1,11 +1,13 @@
-import { Server } from 'socket.io';
+import { AuthNamespace } from '@/namespaces/authNamespace';
+import { ColorLabNamespace } from '@/namespaces/colorLabNamespace';
+import { LobbyNamespace } from '@/namespaces/lobbyNamespace';
 import { AuthService } from '@/services/authService';
 import { ServerService } from '@/services/serverService';
-import { AuthNamespace } from '@/namespaces/authNamespace';
-import { LobbyNamespace } from '@/namespaces/lobbyNamespace';
+import { Server } from 'socket.io';
 
 export function setupNameSpaces(io: Server) {
   const authService = new AuthService();
+  AuthService.setInstance(authService);
   const serverService = new ServerService(authService);
 
   new AuthNamespace(io, serverService, authService);
@@ -14,4 +16,5 @@ export function setupNameSpaces(io: Server) {
   serverService.createLobby('2', 'test2');
 
   new LobbyNamespace(io, serverService, authService);
+  new ColorLabNamespace(io, serverService);
 }

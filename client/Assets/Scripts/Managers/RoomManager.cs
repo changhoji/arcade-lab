@@ -148,6 +148,7 @@ public class RoomManager : MonoBehaviour
     {
         if (m_GameConfigs.TryGetValue(m_CurrentRoom.gameId, out GameConfig config))
         {
+            PlayerPrefs.SetString("RoomId", m_CurrentRoom.roomId);
             SceneManager.LoadScene(config.sceneName);
         }
         else
@@ -172,6 +173,7 @@ public class RoomManager : MonoBehaviour
     {
         if (m_GameConfigs.TryGetValue(m_CurrentRoom.gameId, out GameConfig config))
         {
+            PlayerPrefs.SetString("RoomId", m_CurrentRoom.roomId);
             SceneManager.LoadScene(config.sceneName);
         }
         else

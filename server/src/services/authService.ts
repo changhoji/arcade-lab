@@ -1,9 +1,20 @@
 import { PlayerState } from '@/types/common';
 
 export class AuthService {
+  private static instance: AuthService;
+
   private players = new Map<string, PlayerState>();
   private socketToUserId = new Map<string, string>();
   private nextKey = 0;
+
+  constructor() {}
+
+  static setInstance(authService: AuthService) {
+    this.instance = authService;
+  }
+  static getInstance() {
+    return this.instance;
+  }
 
   addPlayer(userId: string, socketId: string): PlayerState | null {
     if (this.players.has(userId)) {

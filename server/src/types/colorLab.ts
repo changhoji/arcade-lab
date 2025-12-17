@@ -1,6 +1,9 @@
-import { PlayerState, Position } from './common';
+import { PlayerState as PlayerBaseState, Position } from './common';
 
-export interface ColorLabPlayerData extends PlayerState {
+export interface ColorLabPlayerState {
   position: Position;
+  isMoving: boolean;
   colorIndex: number;
 }
+
+export type ColorLabPlayerSnapshot = PlayerBaseState & ColorLabPlayerState;
