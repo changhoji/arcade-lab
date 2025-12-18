@@ -17,7 +17,7 @@ public class RoomManager : MonoBehaviour
 
     public bool IsInRoom => m_CurrentRoom != null;
 
-    [Inject] AuthManager m_AuthManager;
+    [Inject] IAuthManager m_AuthManager;
     [Inject] LobbyNetworkService m_LobbyService;
 
     RoomData m_CurrentRoom;

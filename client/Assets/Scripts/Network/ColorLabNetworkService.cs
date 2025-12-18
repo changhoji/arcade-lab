@@ -18,12 +18,13 @@ public class ColorLabNetworkService : INetworkService
     public event Action<PlayerPositionPayload> OnPositionChanged;
     public event Action<PlayerMovingPayload> OnMovingChanged;
 
-    [Inject] AuthManager m_AuthManager;
+    [Inject] IAuthManager m_AuthManager;
 
     SocketIOUnity m_ColorLabSocket;
 
     public void Initialize()
     {
+        Debug.Log("ColorLabNetworkService.Initialize");
     }
 
     public void InitializeSocket(string roomId)
@@ -33,7 +34,7 @@ public class ColorLabNetworkService : INetworkService
             Auth = new Dictionary<string, string>
             {
                 { "userId", m_AuthManager.UserId },
-                { "roomId", roomId }
+                { "roomId", roomId },
             }
         });
         m_ColorLabSocket.JsonSerializer = new NewtonsoftJsonSerializer();

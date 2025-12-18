@@ -4,6 +4,7 @@ import { ColorLabPlayerSnapshot } from '@/types/colorLab';
 import { failure, NetworkResult, Position, success } from '@/types/common';
 import { PlayerMovingPayload, PlayerPositionPayload } from '@/types/lobby';
 import { Namespace, Server } from 'socket.io';
+import { AuthService } from '../services/authService';
 import { ColorLabService } from '../services/colorLabService';
 
 export class ColorLabNamespace {
@@ -20,8 +21,20 @@ export class ColorLabNamespace {
 
   private registerHandlers() {
     this.namespace.on('connection', (socket) => {
-      const userId = socket.handshake.auth.userId;
-      const roomId = socket.handshake.auth.roomId;
+      let flag = true;
+      const userId: string = socket.handshake.auth.userId;
+      let roomId: string = socket.handshake.auth.roomId;
+
+      if (userId.length === 1) {
+        console.log('standalone mode start');
+
+        roomId = 'test';
+
+        if (flag) {
+          flag = false;
+          this.setupStandaloneTest();
+        }
+      }
 
       // create or get game service
       let gameService = this.games.get(roomId);
@@ -84,4 +97,21 @@ export class ColorLabNamespace {
       });
     });
   }
+
+  private setupStandaloneTest() {
+    const authService = AuthService.getInstance();
+    authService.addPlayer('0');
+    authService.addPlayer('1');
+
+    const lobby = this.serverService.createLobby('test', 'test');
+    const room = lobby?.createRoom('test', '0', {
+      gameId: 'color-lab',
+      name: 'colorlab-test',
+    });
+
+    room?.joinRoom('0');
+    room?.joinRoom('1');
+  }
 }
+
+// standalone 옵션이 켜져서 connect가 되면? auth를 임의로 초기화해주기?

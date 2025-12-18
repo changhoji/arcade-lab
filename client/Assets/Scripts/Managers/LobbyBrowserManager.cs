@@ -11,7 +11,8 @@ public class LobbyBrowserManager : MonoBehaviour
     public event Action<LobbyData[]> OnLobbyListResponse;
 
     [Inject] LobbyNetworkService m_LobbyService;
-    [Inject] AuthManager m_AuthManager;
+    [Inject] IAuthManager m_AuthManager;
+    [Inject] SceneLoader m_SceneLoader;
 
     Dictionary<string, LobbyData> m_Lobbies = new();
 
@@ -67,12 +68,12 @@ public class LobbyBrowserManager : MonoBehaviour
     void HandleCreateLobbyResponse(string lobbyId)
     {
         PlayerPrefs.SetString("LobbyId", lobbyId);
-        SceneManager.LoadScene("Lobby");
+        StartCoroutine(m_SceneLoader.LoadSceneAsync("Lobby"));
     }
 
     void HandleJoinLobbyResponse(string lobbyId)
     {
         PlayerPrefs.SetString("LobbyId", lobbyId);
-        SceneManager.LoadScene("Lobby");
+        StartCoroutine(m_SceneLoader.LoadSceneAsync("Lobby"));
     }
 }

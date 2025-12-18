@@ -17,12 +17,13 @@ export class AuthNamespace {
 
   private registerHandlers() {
     this.namespace.on('connection', (socket) => {
+      let userId: string | null;
       // guest signin request
       socket.on(
         'auth:guest',
         (callback: (result: NetworkResult<PlayerState>) => void) => {
-          const userId = generateId();
-          const player = this.authService.addPlayer(socket.id, userId);
+          userId = generateId();
+          const player = this.authService.addPlayer(userId);
           if (!player) {
             callback({
               success: false,
@@ -43,7 +44,6 @@ export class AuthNamespace {
 
       // client disconnected
       socket.on('disconnect', () => {
-        const userId = this.authService.getUserIdBySocket(socket.id);
         if (userId) {
           this.authService.removePlayer(userId);
         }

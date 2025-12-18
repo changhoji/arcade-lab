@@ -33,7 +33,7 @@ public class LobbyNetworkService : INetworkService
     public event Action<RoomPlayerData> OnRoomJoined;
     public event Action<string> OnRoomLeft;
 
-    [Inject] AuthManager m_AuthManager;
+    [Inject] IAuthManager m_AuthManager;
     SocketIOUnity m_LobbySocket;
 
     public void Initialize()

@@ -9,7 +9,7 @@ public class ColorLabManager : MonoBehaviour
 
     [SerializeField] GameObject m_PlayerPrefab;
 
-    [Inject] AuthManager m_AuthManager;
+    [Inject] IAuthManager m_AuthManager;
     [Inject] ColorLabNetworkService m_ColorLabService;
 
     Dictionary<string, PlayerBase> m_Players = new();
@@ -40,6 +40,7 @@ public class ColorLabManager : MonoBehaviour
 
     void SpawnPlayer(ColorLabPlayerData player)
     {
+        Debug.Log(player.userId);
         var playerObject = Instantiate(m_PlayerPrefab, new Vector3(player.position.x, player.position.y), Quaternion.identity);
         var isOwner = player.userId == m_AuthManager.UserId;
 

@@ -4,7 +4,6 @@ export class AuthService {
   private static instance: AuthService;
 
   private players = new Map<string, PlayerState>();
-  private socketToUserId = new Map<string, string>();
   private nextKey = 0;
 
   constructor() {}
@@ -16,7 +15,7 @@ export class AuthService {
     return this.instance;
   }
 
-  addPlayer(userId: string, socketId: string): PlayerState | null {
+  addPlayer(userId: string): PlayerState | null {
     if (this.players.has(userId)) {
       return null;
     }
@@ -26,25 +25,16 @@ export class AuthService {
       skinIndex: 0,
     };
     this.players.set(userId, player);
-    this.socketToUserId.set(socketId, userId);
     return player;
   }
 
-  removePlayer(socketId: string) {
-    const userId = this.socketToUserId.get(socketId);
-    if (userId) {
-      this.players.delete(userId);
-      this.socketToUserId.delete(socketId);
-    }
+  removePlayer(userId: string) {
+    this.players.delete(userId);
   }
 
   getUser(userId: string): PlayerState | null {
     const player = this.players.get(userId);
     return player ? player : null;
-  }
-
-  getUserIdBySocket(socketId: string) {
-    return this.socketToUserId.get(socketId);
   }
 
   updateSkinIndex(userId: string, skinIndex: number): boolean {

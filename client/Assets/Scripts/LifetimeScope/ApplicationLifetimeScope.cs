@@ -7,12 +7,14 @@ public class ApplicationLifetimeScope : LifetimeScope
 {
     protected override void Configure(IContainerBuilder builder)
     {
+        builder.Register<SceneLoader>(Lifetime.Singleton);
+
         builder.Register<AuthNetworkService>(Lifetime.Singleton)
             .AsImplementedInterfaces().AsSelf();
         builder.Register<LobbyNetworkService>(Lifetime.Singleton)
             .AsImplementedInterfaces().AsSelf();
 
-        builder.RegisterComponentInHierarchy<AuthManager>();
+        builder.RegisterComponentOnNewGameObject<AuthManager>(Lifetime.Singleton).As<IAuthManager>();
     }
 
     protected override void Awake()
@@ -23,6 +25,9 @@ public class ApplicationLifetimeScope : LifetimeScope
 
     void Start()
     {
-        SceneManager.LoadScene("MainMenu");
+        // if (SceneManager.GetActiveScene().name == "Startup")
+        // {
+        //     SceneManager.LoadScene("MainMenu");
+        // }
     }
 }

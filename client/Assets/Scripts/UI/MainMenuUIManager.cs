@@ -4,7 +4,7 @@ using VContainer;
 
 public class MainMenuUIManager : MonoBehaviour
 {
-    [Inject] AuthManager m_AuthManager;
+    [Inject] IAuthManager m_AuthManager;
     [Inject] AuthPanel m_AuthPanel;
     [Inject] LobbyBrowserPanel m_LobbyBrowserPanel;
 

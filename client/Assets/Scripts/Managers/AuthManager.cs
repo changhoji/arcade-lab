@@ -15,6 +15,7 @@ public class AuthManager : MonoBehaviour
     public event Action OnSignInSuccess;
 
     [Inject] AuthNetworkService m_AuthService;
+    [Inject] SceneLoader m_SceneLoader;
 
     void Awake()
     {
@@ -23,10 +24,14 @@ public class AuthManager : MonoBehaviour
 
     async void Start()
     {
+        Debug.Log("AuthManager.Start");
+        Debug.Log(m_AuthService);
         if (m_AuthService != null)
         {
             m_AuthService.OnSignInResponse += HandleSignInResponse;
             await m_AuthService.ConnectAsync();
+            Debug.Log("asdf");
+            StartCoroutine(m_SceneLoader.LoadSceneAsync("MainMenu"));
         }
     }
 

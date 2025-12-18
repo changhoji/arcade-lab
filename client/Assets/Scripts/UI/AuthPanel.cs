@@ -4,7 +4,7 @@ using VContainer;
 
 public class AuthPanel : UIPanelBase
 {
-    [Inject] AuthManager m_Manager;
+    [Inject] IAuthManager m_Manager;
 
     Button m_GuestButton;
 

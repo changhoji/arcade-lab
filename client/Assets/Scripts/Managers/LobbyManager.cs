@@ -13,7 +13,7 @@ public class LobbyManager : MonoBehaviour
 
     [SerializeField] GameObject m_PlayerPrefab;
 
-    [Inject] AuthManager m_AuthManager;
+    [Inject] IAuthManager m_AuthManager;
     [Inject] LobbyNetworkService m_LobbyService;
     Dictionary<string, PlayerBase> m_Players = new();
 

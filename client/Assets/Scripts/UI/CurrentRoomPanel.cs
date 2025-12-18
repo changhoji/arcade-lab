@@ -6,7 +6,7 @@ using VContainer;
 
 public class CurrentRoomPanel : UIPanelBase
 {
-    [Inject] AuthManager m_AuthManager;
+    [Inject] IAuthManager m_AuthManager;
     [Inject] LobbyManager m_LobbyManager;
     [Inject] RoomManager m_RoomManager;
 
