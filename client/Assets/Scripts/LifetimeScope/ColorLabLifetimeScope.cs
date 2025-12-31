@@ -27,5 +27,7 @@ public class ColorLabLifetimeScope : LifetimeScope
         builder.Register<ColorLabNetworkService>(Lifetime.Singleton)
             .AsImplementedInterfaces().AsSelf();
         builder.RegisterComponentInHierarchy<ColorLabManager>();
+        builder.RegisterComponentInHierarchy<ColorTileManager>();
+        builder.RegisterComponentInHierarchy<ColorLabPanel>();
     }
 }

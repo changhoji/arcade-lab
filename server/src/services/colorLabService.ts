@@ -4,10 +4,12 @@ import { Position } from '@/types/common';
 import { RoomPlayerSnapshot } from '@/types/lobby';
 
 export class ColorLabService extends GameService<ColorLabPlayerState> {
+  private steppedTiles: Map<Position, string> = new Map();
+
   protected createPlayerState(player: RoomPlayerSnapshot): ColorLabPlayerState {
     return player.isHost
-      ? { position: { x: -5, y: 0 }, isMoving: false, colorIndex: 0 }
-      : { position: { x: 5, y: 0 }, isMoving: false, colorIndex: 1 };
+      ? { position: { x: -8, y: 0 }, isMoving: false, colorIndex: 0 }
+      : { position: { x: 8, y: 0 }, isMoving: false, colorIndex: 1 };
   }
 
   updatePosition(userId: string, position: Position): boolean {
@@ -26,5 +28,15 @@ export class ColorLabService extends GameService<ColorLabPlayerState> {
       return true;
     }
     return false;
+  }
+
+  stepTile(tilePosition: Position, userId: string): boolean {
+    if (this.steppedTiles.has(tilePosition)) return false;
+    this.steppedTiles.set(tilePosition, userId);
+    return true;
+  }
+
+  unstepTile(tilePosition: Position) {
+    this.steppedTiles.delete(tilePosition);
   }
 }

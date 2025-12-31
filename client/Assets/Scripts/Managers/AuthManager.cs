@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer;
 
-public class AuthManager : MonoBehaviour
+public class AuthManager : MonoBehaviour, IAuthManager
 {
     public string UserId { get; private set; } = null;
     public bool IsAuthenticated => !string.IsNullOrEmpty(UserId);

@@ -11,12 +11,15 @@ using VContainer;
 public class ColorLabNetworkService : INetworkService
 {
     public event Action<ColorLabPlayerData[]> OnColorLabInitResponse;
+    public event Action <Vector2Int> OnStepTileResponse;
     
     public event Action<int> OnCountdown;
     public event Action OnStartGame;
+    public event Action<int> OnGameTimerTick;
 
     public event Action<PlayerPositionPayload> OnPositionChanged;
     public event Action<PlayerMovingPayload> OnMovingChanged;
+    public event Action<TileStepperPayload> OnStepperChanged;
 
     [Inject] IAuthManager m_AuthManager;
 
@@ -83,6 +86,19 @@ public class ColorLabNetworkService : INetworkService
         {
             OnStartGame?.Invoke(); 
         });
+
+        m_ColorLabSocket.OnUnityThread("game:timerTick", response =>
+        {
+            var timer = response.GetValue<int>();
+            OnGameTimerTick?.Invoke(timer);
+        });
+
+        m_ColorLabSocket.OnUnityThread("tile:stepperChanged", response =>
+        {
+            var payload = response.GetValue<TileStepperPayload>();
+            Debug.Log(payload.stepperId);
+            OnStepperChanged?.Invoke(payload);
+        });
     }
 
     public void RequestColorLabInit()
@@ -102,6 +118,23 @@ public class ColorLabNetworkService : INetworkService
         });
     }
 
+    public void RequestStepTile(Vector2Int tilePosition)
+    {
+        var context = SynchronizationContext.Current;
+        m_ColorLabSocket.Emit("tile:step", (response) =>
+        {
+            var result = response.GetValue<NetworkResult<Vector2Int>>();
+            if (result.success)
+            {
+                context.Post(_ => OnStepTileResponse?.Invoke(result.data), null);
+            }
+            else
+            {
+                Debug.LogError($"Step failed: {result.error}");
+            }
+        }, tilePosition);
+    }
+
     public void SendPlayerReady()
     {
         m_ColorLabSocket.Emit("game:ready");
@@ -115,5 +148,10 @@ public class ColorLabNetworkService : INetworkService
     public void SendPlayerMoving(bool value)
     {
         m_ColorLabSocket.Emit("player:changeMoving", value);
+    }
+
+    public void SendUnStepped(Vector2Int position)
+    {
+        m_ColorLabSocket.Emit("tile:unstep", position);
     }
 }

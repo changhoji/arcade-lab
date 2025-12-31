@@ -1,0 +1,29 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/ColorLabPanel.uss?fileID=7433441132597879392&amp;guid=1533f43ecd59946a7b27bf9b36174d30&amp;type=3#ColorLabPanel" />
+    <ui:VisualElement class="game-hud">
+        <!-- 상단 영역: 타이머와 점수 -->
+        <ui:VisualElement class="top-bar">
+            <!-- 왼쪽 플레이어 점수 -->
+            <ui:VisualElement class="player-score-container left-player">
+                <ui:Label name="left-player-name" text="Player 1" class="player-name" />
+                <ui:Label name="left-player-score" text="0" class="score-value" />
+            </ui:VisualElement>
+            
+            <!-- 중앙 타이머 -->
+            <ui:VisualElement class="timer-container">
+                <ui:Label name="timer-label" text="60" class="timer-value" />
+            </ui:VisualElement>
+            
+            <!-- 오른쪽 플레이어 점수 -->
+            <ui:VisualElement class="player-score-container right-player">
+                <ui:Label name="right-player-name" text="Player 2" class="player-name" />
+                <ui:Label name="right-player-score" text="0" class="score-value" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        
+        <!-- 카운트다운 오버레이 (게임 시작 전) -->
+        <ui:VisualElement name="countdown-overlay" class="countdown-overlay" style="display: none;">
+            <ui:Label name="countdown-label" text="3" class="countdown-value" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

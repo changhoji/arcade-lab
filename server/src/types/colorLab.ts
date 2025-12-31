@@ -7,3 +7,8 @@ export interface ColorLabPlayerState {
 }
 
 export type ColorLabPlayerSnapshot = PlayerBaseState & ColorLabPlayerState;
+
+export interface TileStepperPayload {
+  position: Position;
+  stepperId: string | null;
+}

@@ -8,4 +8,10 @@ namespace ArcadeLab.Data
         public bool isMoving;
         public int colorIndex;
     }
+
+    public class TileStepperPayload
+    {
+        public Vector2Int position;
+        public string stepperId;
+    }
 }

@@ -9,6 +9,9 @@ export abstract class GameService<TPlayerState> {
   protected readyPlayers = new Set<string>();
   protected authService: AuthService;
 
+  private gameTimer?: NodeJS.Timeout;
+  private remainingTime = 60;
+
   constructor(
     protected roomService: RoomService,
     protected config: GameConfig
@@ -69,4 +72,28 @@ export abstract class GameService<TPlayerState> {
       }
     }, 1000);
   }
+
+  startGame(duration: number) {
+    this.remainingTime = duration;
+
+    this.gameTimer = setInterval(() => {
+      this.remainingTime--;
+
+      this.onTimeTick?.(this.remainingTime);
+
+      if (this.remainingTime <= 0) {
+        this.endGame();
+      }
+    }, 1000);
+  }
+
+  endGame() {
+    if (this.gameTimer) {
+      clearInterval(this.gameTimer);
+    }
+    this.onGameEnd?.();
+  }
+
+  onTimeTick?: (remainingTime: number) => void;
+  onGameEnd?: () => void;
 }

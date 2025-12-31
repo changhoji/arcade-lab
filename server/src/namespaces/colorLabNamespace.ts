@@ -1,6 +1,6 @@
 import { GAME_CONFIGS } from '@/configs/games';
 import { ServerService } from '@/services/serverService';
-import { ColorLabPlayerSnapshot } from '@/types/colorLab';
+import { ColorLabPlayerSnapshot, TileStepperPayload } from '@/types/colorLab';
 import { failure, NetworkResult, Position, success } from '@/types/common';
 import { PlayerMovingPayload, PlayerPositionPayload } from '@/types/lobby';
 import { Namespace, Server } from 'socket.io';
@@ -73,9 +73,50 @@ export class ColorLabNamespace {
             },
             () => {
               this.namespace.to(roomId).emit('game:start', {});
+
+              gameService.onTimeTick = (remainingTime) => {
+                this.namespace.to(roomId).emit('game:timerTick', remainingTime);
+              };
+              gameService.onGameEnd = () => {
+                this.namespace.to(roomId).emit('game:end');
+              };
+
+              gameService.startGame(60);
             }
           );
         }
+      });
+
+      socket.on(
+        'tile:step',
+        (
+          position: Position,
+          callback: (result: NetworkResult<Position>) => void
+        ) => {
+          if (!gameService.stepTile(position, userId)) {
+            callback(failure('already stepped by someone'));
+            return;
+          }
+
+          callback(success(position));
+
+          console.log(userId);
+          const payload: TileStepperPayload = {
+            position,
+            stepperId: userId,
+          };
+          socket.to(roomId).emit('tile:stepperChanged', payload);
+        }
+      );
+
+      socket.on('tile:unstep', (position: Position) => {
+        console.log('got unstep');
+        gameService.unstepTile(position);
+        const payload: TileStepperPayload = {
+          position,
+          stepperId: null,
+        };
+        this.namespace.to(roomId).emit('tile:stepperChanged', payload);
       });
 
       socket.on('player:changePosition', (position: Position) => {

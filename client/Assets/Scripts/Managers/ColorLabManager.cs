@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ArcadeLab.Data;
 using UnityEngine;
@@ -7,7 +8,12 @@ public class ColorLabManager : MonoBehaviour
 {
     public string RoomId { get; private set; }
 
+    public event Action<int> OnCountdown;
+    public event Action OnStartGame;
+    public event Action<int> OnGameTimerTick;
+
     [SerializeField] GameObject m_PlayerPrefab;
+    [SerializeField] GameObject m_Fences;
 
     [Inject] IAuthManager m_AuthManager;
     [Inject] ColorLabNetworkService m_ColorLabService;
@@ -21,6 +27,7 @@ public class ColorLabManager : MonoBehaviour
         m_ColorLabService.OnMovingChanged += HandleMovingChanged;
         m_ColorLabService.OnCountdown += HandleCountdown;
         m_ColorLabService.OnStartGame += HandleStartGame;
+        m_ColorLabService.OnGameTimerTick += HandleGameTimerTick;
 
         RoomId = PlayerPrefs.GetString("RoomId");
 
@@ -36,6 +43,7 @@ public class ColorLabManager : MonoBehaviour
         m_ColorLabService.OnMovingChanged -= HandleMovingChanged;
         m_ColorLabService.OnCountdown -= HandleCountdown;
         m_ColorLabService.OnStartGame -= HandleStartGame;
+        m_ColorLabService.OnGameTimerTick -= HandleGameTimerTick;
     }
 
     void SpawnPlayer(ColorLabPlayerData player)
@@ -102,10 +110,17 @@ public class ColorLabManager : MonoBehaviour
     void HandleCountdown(int count)
     {
         Debug.Log($"count = {count}");
+        OnCountdown?.Invoke(count);
     }
 
     void HandleStartGame()
     {
-        Debug.Log("start!");
+        m_Fences.SetActive(false);
+        OnStartGame?.Invoke();
+    }
+
+    void HandleGameTimerTick(int timer)
+    {
+        OnGameTimerTick?.Invoke(timer);
     }
 }
