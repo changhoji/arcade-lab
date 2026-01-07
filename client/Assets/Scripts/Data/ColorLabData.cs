@@ -9,6 +9,12 @@ namespace ArcadeLab.Data
         public int colorIndex;
     }
 
+    public class ColorLabInitResponse
+    {
+        public RoomData room;
+        public ColorLabPlayerData[] players;
+    }
+
     public class TileStepperPayload
     {
         public Vector2Int position;

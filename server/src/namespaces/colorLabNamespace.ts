@@ -1,6 +1,6 @@
 import { GAME_CONFIGS } from '@/configs/games';
 import { ServerService } from '@/services/serverService';
-import { ColorLabPlayerSnapshot, TileStepperPayload } from '@/types/colorLab';
+import { ColorLabInitResponse, TileStepperPayload } from '@/types/colorLab';
 import { failure, NetworkResult, Position, success } from '@/types/common';
 import { PlayerMovingPayload, PlayerPositionPayload } from '@/types/lobby';
 import { Namespace, Server } from 'socket.io';
@@ -50,16 +50,19 @@ export class ColorLabNamespace {
 
       socket.on(
         'game:init',
-        (
-          callback: (result: NetworkResult<ColorLabPlayerSnapshot[]>) => void
-        ) => {
+        (callback: (result: NetworkResult<ColorLabInitResponse>) => void) => {
           if (!gameService) {
             callback(failure('cannot find game service'));
             return;
           }
 
           console.log('init');
-          callback(success(gameService.getPlayerSnapshots()));
+          callback(
+            success({
+              room: this.serverService.getRoomById(roomId)!.toRoomData()!,
+              players: gameService.getPlayerSnapshots(),
+            })
+          );
         }
       );
 

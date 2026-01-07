@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ArcadeLab.Data;
 using UnityEngine;
@@ -5,6 +6,7 @@ using VContainer;
 
 public class ColorTileManager : MonoBehaviour
 {
+    public event Action<string, int> OnScoreUpdated;
     [SerializeField] GameObject m_ColorTilePrefab;
     [SerializeField] int m_GridWidth = 20;
     [SerializeField] int m_GridHeight = 20;
@@ -20,12 +22,14 @@ public class ColorTileManager : MonoBehaviour
     {
         GenerateTiles();
 
+        m_ColorLabService.OnColorLabInitResponse += HandleColorLabInitResponse;
         m_ColorLabService.OnStepTileResponse += HandleStepTileResponse;
         m_ColorLabService.OnStepperChanged += HandleStepperChanged;
     }
 
     void OnDestroy()
     {
+        m_ColorLabService.OnColorLabInitResponse -= HandleColorLabInitResponse;
         m_ColorLabService.OnStepTileResponse -= HandleStepTileResponse;
         m_ColorLabService.OnStepperChanged -= HandleStepperChanged;
     }
@@ -44,22 +48,62 @@ public class ColorTileManager : MonoBehaviour
 
                 var colorTile = tileObject.GetComponent<ColorTile>();
                 colorTile.Init(gridPos, m_AuthManager);
-                colorTile.OnPressed += () => { m_ColorLabService.RequestStepTile(gridPos); };
-                colorTile.OnUnStepped += () => { m_ColorLabService.SendUnStepped(gridPos); };
+                colorTile.OnStep += () => { m_ColorLabService.RequestStepTile(gridPos); };
+                colorTile.OnUnstep += () => { m_ColorLabService.SendUnStepped(gridPos); };
 
                 m_Tiles.Add(gridPos, tileObject.GetComponent<ColorTile>());
             }
         }
     }
 
+    void HandleColorLabInitResponse(ColorLabInitResponse response)
+    {
+        foreach (var player in response.players)
+        {
+            m_Scores[player.userId] = 0;
+        }
+    }
+
     void HandleStepTileResponse(Vector2Int position)
     {
-        m_Tiles[position].StepperId = m_AuthManager.UserId;
+        UpdateTile(position, m_AuthManager.UserId);
     }
 
     void HandleStepperChanged(TileStepperPayload payload)
     {
-        Debug.Log($"payload stepperId: {payload.stepperId}");
-        m_Tiles[payload.position].StepperId = payload.stepperId;
+        UpdateTile(payload.position, payload.stepperId);
+    }
+
+    void UpdateTile(Vector2Int position, string stepperId)
+    {
+        string prevOwnerId = m_Tiles[position].OwnerId;
+        
+        if (stepperId == null)
+        {
+            m_Tiles[position].IsOccupied = false;
+            return;
+        }
+
+        if (prevOwnerId != stepperId)
+        {
+            if (prevOwnerId != null)
+            {
+                m_Scores[prevOwnerId]--;
+                OnScoreUpdated(prevOwnerId, m_Scores[prevOwnerId]);
+            }
+            m_Scores[stepperId]++;
+            OnScoreUpdated(stepperId, m_Scores[stepperId]);
+        }
+
+        m_Tiles[position].IsOccupied = true;
+        m_Tiles[position].OwnerId = stepperId;
+
+        // if (prevStepperId != null)
+        // {
+        //     m_Scores[prevStepperId]--;
+        //     OnScoreUpdated?.Invoke(prevStepperId, m_Scores[prevStepperId]);
+        // }
+        // m_Scores[stepperId]++;
+        // OnScoreUpdated?.Invoke(stepperId, m_Scores[stepperId]);
     }
 }

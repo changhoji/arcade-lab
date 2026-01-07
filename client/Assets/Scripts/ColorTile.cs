@@ -5,32 +5,27 @@ using VContainer;
 public class ColorTile : MonoBehaviour
 {
     public Vector2Int GridPosition { get; private set; }
-    public string StepperId
+    public string OwnerId
     {
-        get => m_StepperId;
+        get => m_OwnerId;
         set
         {
-            Debug.Log($"change to {value}");
-            m_StepperId = value;
-            if (value != null)
-            {
-                m_SpriteRenderer.color = m_StepperId == m_AuthManager.UserId ? Color.blue : Color.red;    
-            }
+            m_OwnerId = value;
+            m_SpriteRenderer.color = value == m_AuthManager.UserId ? Color.blue : Color.red;
         }
     }
+    public bool IsOccupied = false;
 
-    public event Action OnPressed;
-    public event Action OnUnStepped;
+    public event Action OnStep;
+    public event Action OnUnstep;
 
     IAuthManager m_AuthManager;
     SpriteRenderer m_SpriteRenderer;
-    Color m_Color;
-    string m_StepperId;
+    string m_OwnerId;
 
     void Awake()
     {
         m_SpriteRenderer = GetComponent<SpriteRenderer>();
-        m_Color = Color.white;
     }
 
     public void Init(Vector2Int gridPosition, IAuthManager authManager)
@@ -51,26 +46,23 @@ public class ColorTile : MonoBehaviour
     void OnTriggerExit2D(Collider2D other) {
         if (other.TryGetComponent<PlayerBase>(out var player) && player.IsOwner)
         {
-            UnStep();
+            Unstep();
             Debug.Log("call unstep()");
         }  
     }
 
-
     void Step()
     {
-        if (StepperId == null)
+        if (IsOccupied)
         {
-            OnPressed?.Invoke();
+            return;
         }
-        
+
+        OnStep?.Invoke();
     }
 
-    void UnStep()
+    void Unstep()
     {
-        if (StepperId == m_AuthManager.UserId)
-        {
-            OnUnStepped?.Invoke();
-        }
+        OnUnstep?.Invoke();
     }
 }

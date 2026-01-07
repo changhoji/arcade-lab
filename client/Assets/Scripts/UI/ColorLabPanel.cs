@@ -5,6 +5,7 @@ using VContainer;
 public class ColorLabPanel : UIPanelBase
 {
     [Inject] ColorLabManager m_Manager;
+    [Inject] ColorTileManager m_TileManager;
     
     Label m_LeftPlayerScore;
     Label m_RightPlayerScore;
@@ -30,6 +31,8 @@ public class ColorLabPanel : UIPanelBase
         m_Manager.OnCountdown += ShowCountdown;
         m_Manager.OnStartGame += HideCountdown;
         m_Manager.OnGameTimerTick += UpdateTimer;
+
+        m_TileManager.OnScoreUpdated += UpdateScore;
     }
 
     void OnDestroy()
@@ -37,7 +40,9 @@ public class ColorLabPanel : UIPanelBase
         m_Manager.OnCountdown -= ShowCountdown;
         m_Manager.OnStartGame -= HideCountdown;
         m_Manager.OnGameTimerTick -= UpdateTimer;
-    }        
+
+        m_TileManager.OnScoreUpdated -= UpdateScore;
+    }
 
     public void UpdateLeftPlayerScore(int score)
     {
@@ -76,5 +81,17 @@ public class ColorLabPanel : UIPanelBase
     public void HideCountdown()
     {
         m_CountdownOverlay.style.display = DisplayStyle.None;
+    }
+
+    void UpdateScore(string userId, int score)
+    {
+        if (userId == "0")
+        {
+            UpdateLeftPlayerScore(score);
+        }
+        else
+        {
+            UpdateRightPlayerScore(score);
+        }
     }
 }

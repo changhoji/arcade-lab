@@ -66,9 +66,9 @@ public class ColorLabManager : MonoBehaviour
         m_Players.Add(player.userId, playerBase);
     }
 
-    void HandleColorLabInitResponse(ColorLabPlayerData[] players)
+    void HandleColorLabInitResponse(ColorLabInitResponse response)
     {
-        foreach (var player in players)
+        foreach (var player in response.players)
         {
             SpawnPlayer(player);
         }

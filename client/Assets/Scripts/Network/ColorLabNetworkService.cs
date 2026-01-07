@@ -10,7 +10,7 @@ using VContainer;
 
 public class ColorLabNetworkService : INetworkService
 {
-    public event Action<ColorLabPlayerData[]> OnColorLabInitResponse;
+    public event Action<ColorLabInitResponse> OnColorLabInitResponse;
     public event Action <Vector2Int> OnStepTileResponse;
     
     public event Action<int> OnCountdown;
@@ -106,7 +106,7 @@ public class ColorLabNetworkService : INetworkService
         var context = SynchronizationContext.Current;
         m_ColorLabSocket.Emit("game:init", (response) =>
         {
-            var result = response.GetValue<NetworkResult<ColorLabPlayerData[]>>();
+            var result = response.GetValue<NetworkResult<ColorLabInitResponse>>();
             if (result.success)
             {
                 context.Post(_ => OnColorLabInitResponse?.Invoke(result.data), null);
