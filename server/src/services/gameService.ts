@@ -60,6 +60,7 @@ export abstract class GameService<TPlayerState> {
     return this.readyPlayers.size === this.maxPlayers;
   }
 
+  // countdown for starting game
   startCountdown(onTick: (count: number) => void, onComplete: () => void) {
     let count = 3;
     const interval = setInterval(() => {
@@ -73,6 +74,7 @@ export abstract class GameService<TPlayerState> {
     }, 1000);
   }
 
+  // call to start game
   startGame(duration: number) {
     this.remainingTime = duration;
 
@@ -87,6 +89,7 @@ export abstract class GameService<TPlayerState> {
     }, 1000);
   }
 
+  // when game timer is done
   endGame() {
     if (this.gameTimer) {
       clearInterval(this.gameTimer);
@@ -94,6 +97,7 @@ export abstract class GameService<TPlayerState> {
     this.onGameEnd?.();
   }
 
+  // event logic for each game service
   onTimeTick?: (remainingTime: number) => void;
   onGameEnd?: () => void;
 }

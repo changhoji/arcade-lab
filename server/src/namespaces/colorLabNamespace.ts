@@ -77,6 +77,7 @@ export class ColorLabNamespace {
             () => {
               this.namespace.to(roomId).emit('game:start', {});
 
+              // set events that used in 'color-lab' game service
               gameService.onTimeTick = (remainingTime) => {
                 this.namespace.to(roomId).emit('game:timerTick', remainingTime);
               };
