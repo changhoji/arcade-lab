@@ -63,6 +63,11 @@ public class ColorTile : MonoBehaviour
 
     void Unstep()
     {
+        if (!IsOccupied || OwnerId != m_AuthManager.UserId)
+        {
+            return;
+        }
+
         OnUnstep?.Invoke();
     }
 }
