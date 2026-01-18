@@ -15,3 +15,7 @@ Button {
 * {
     -unity-font-definition: url("project://database/Assets/Fonts/NanumSquareRoundB.ttf?fileID=12800000&guid=b528bf039195949f88ff8d0f5f2cf932&type=3#NanumSquareRoundB");
 }
+
+.dimmed {
+    background-color: rgba(0, 0, 0, 0.8);
+}
